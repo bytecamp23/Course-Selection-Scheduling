@@ -1,7 +1,7 @@
 package server
 
 import (
-	"bytecamp/pkg/config"
+	"Course-Selection-Scheduling/pkg/config"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"

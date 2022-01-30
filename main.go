@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bytecamp/internal/global"
-	"bytecamp/internal/server"
-	"bytecamp/pkg/config"
-	"bytecamp/pkg/mydb"
-	"bytecamp/pkg/myredis"
-	"bytecamp/utils"
+	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/internal/server"
+	"Course-Selection-Scheduling/pkg/config"
+	"Course-Selection-Scheduling/pkg/mydb"
+	"Course-Selection-Scheduling/pkg/myredis"
+	"Course-Selection-Scheduling/utils"
 	"flag"
 )
 

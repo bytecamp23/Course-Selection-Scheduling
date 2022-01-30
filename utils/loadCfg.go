@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"bytecamp/pkg/config"
+	"Course-Selection-Scheduling/pkg/config"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"

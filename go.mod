@@ -1,4 +1,4 @@
-module bytecamp
+module Course-Selection-Scheduling
 
 go 1.17
 

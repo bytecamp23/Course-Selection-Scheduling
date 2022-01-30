@@ -1,8 +1,8 @@
 package mydb
 
 import (
-	"bytecamp/internal/global"
-	"bytecamp/pkg/config"
+	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/pkg/config"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

@@ -1,8 +1,8 @@
 package myredis
 
 import (
-	"bytecamp/internal/global"
-	"bytecamp/pkg/config"
+	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/pkg/config"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"time"
