@@ -1,8 +1,8 @@
-package global
+package server
 
 import "github.com/gin-gonic/gin"
 
-func RegisterRouter(r *gin.Engine) {
+func registerRouter(r *gin.Engine) {
 	g := r.Group("/api/v1")
 
 	// 成员管理
@@ -30,5 +30,4 @@ func RegisterRouter(r *gin.Engine) {
 	// 抢课
 	g.POST("/student/book_course")
 	g.GET("/student/course")
-
 }

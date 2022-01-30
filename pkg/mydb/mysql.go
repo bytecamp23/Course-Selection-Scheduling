@@ -1,10 +1,11 @@
-package global
+package mydb
 
 import (
+	"bytecamp/internal/global"
+	"bytecamp/pkg/config"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 )
 
 type User struct {
@@ -12,7 +13,7 @@ type User struct {
 	Nickname  string
 	Username  string
 	Password  string
-	UserType  UserType
+	UserType  global.UserType
 	DeletedAt gorm.DeletedAt
 }
 
@@ -36,13 +37,17 @@ type SelectCourse struct {
 	DeletedAt gorm.DeletedAt
 }
 
-var MysqlClient *gorm.DB
-
-func NewMysqlConn(name, password, database string) {
-	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", name, password, database)
-	mysqlClient, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+func NewMysqlConn(cfg *config.Mysql) *gorm.DB {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.DbName,
+	)
+	mysqlDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Println("mysql open error! " + err.Error())
+		panic("mysql open error! " + err.Error())
 	}
-	MysqlClient = mysqlClient
+	return mysqlDb
 }

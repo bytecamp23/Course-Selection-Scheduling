@@ -1,0 +1,10 @@
+host: 127.0.0.1
+port: 6379
+auth:
+con_type: tcp
+db_num: 1 #数据库标号
+
+max_idle: 4
+max_active: 8
+
+timeout: 300
