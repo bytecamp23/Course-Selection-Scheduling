@@ -28,7 +28,13 @@ func ScheduleCourse(c *gin.Context) {
 			global.ScheduleCourseResponse{Code: global.ParamInvalid},
 		)
 	}
-	respondData := dinic(requestData.TeacherCourseRelationShip)
+	discretize(requestData.TeacherCourseRelationShip)
+	var respondData map[string]string
+	if pointCnt*len(requestData.TeacherCourseRelationShip) > 10000000 {
+		respondData = dinic(requestData.TeacherCourseRelationShip)
+	} else {
+		respondData = hungarian(requestData.TeacherCourseRelationShip)
+	}
 	c.JSON(
 		http.StatusOK,
 		global.ScheduleCourseResponse{Code: global.OK, Data: respondData},
