@@ -1,6 +1,9 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"Course-Selection-Scheduling/internal/api/course"
+	"github.com/gin-gonic/gin"
+)
 
 func registerRouter(r *gin.Engine) {
 	g := r.Group("/api/v1")
@@ -25,7 +28,7 @@ func registerRouter(r *gin.Engine) {
 	g.POST("/teacher/bind_course")
 	g.POST("/teacher/unbind_course")
 	g.GET("/teacher/get_course")
-	g.POST("/course/schedule")
+	g.POST("/course/schedule", course.Schedule)
 
 	// 抢课
 	g.POST("/student/book_course")
