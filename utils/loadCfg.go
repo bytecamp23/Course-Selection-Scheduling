@@ -19,15 +19,6 @@ func LoadCfg(env string) {
 
 	logPath := path.Join(basePath, "log.yml")
 	config.LogCfg = NewLogConfig(logPath)
-	config.LogCfg.Path = path.Join(config.LogCfg.Path, time.Now().String())
-	logFile, err := os.Create(config.LogCfg.Path)
-	if err != nil {
-		panic(fmt.Sprintf("create logs failed, path: %v. err: %v", config.LogCfg.Path, err.Error()))
-	}
-	//设置logger日志
-	log.SetOutput(logFile)
-	//设置gin日志
-	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
 	mysqlPath := path.Join(basePath, "mysql.yml")
 	config.MysqlCfg = NewMysqlConfig(mysqlPath)
@@ -40,6 +31,18 @@ func LoadCfg(env string) {
 
 	sessionPath := path.Join(basePath, "session.yml")
 	config.SessionCfg = NewSessionConfig(sessionPath)
+}
+
+func SetLogPath() {
+	config.LogCfg.Path = path.Join(config.LogCfg.Path, time.Now().String())
+	logFile, err := os.Create(config.LogCfg.Path)
+	if err != nil {
+		panic(fmt.Sprintf("create logs failed, path: %v. err: %v", config.LogCfg.Path, err.Error()))
+	}
+	//设置logger日志
+	log.SetOutput(logFile)
+	//设置gin日志
+	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 }
 
 func NewLogConfig(path string) config.Log {

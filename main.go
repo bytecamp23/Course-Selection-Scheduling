@@ -19,6 +19,7 @@ func main() {
 	var env = flag.String("env", "dev", "配置环境")
 	flag.Parse() //获取命令行参数 根据参数选择配置文件 默认dev
 	utils.LoadCfg(*env)
+	utils.SetLogPath()
 	global.MysqlClient = mydb.NewMysqlConn(&config.MysqlCfg)
 	global.RedisClient = myredis.NewRedisClient(&config.RedisCfg)
 	server.Run()
