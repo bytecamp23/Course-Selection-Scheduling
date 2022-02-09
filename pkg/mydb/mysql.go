@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	UserId    int64 `gorm:"primaryKey"`
+	UserId    string `gorm:"primaryKey"`
 	Nickname  string
 	Username  string
 	Password  string
@@ -18,7 +18,7 @@ type User struct {
 }
 
 type Course struct {
-	CourseId  int64 `gorm:"primaryKey"`
+	CourseId  string `gorm:"primaryKey"`
 	Name      string
 	Cap       int
 	TeacherId *int64
@@ -26,14 +26,14 @@ type Course struct {
 }
 
 type BindCourse struct {
-	TeacherId int64 `gorm:"primaryKey"`
-	CourseId  int64 `gorm:"primaryKey"`
+	TeacherId string `gorm:"primaryKey"`
+	CourseId  string `gorm:"primaryKey"`
 	DeletedAt gorm.DeletedAt
 }
 
 type SelectCourse struct {
-	StudentId int64 `gorm:"primaryKey"`
-	CourseId  int64 `gorm:"primaryKey"`
+	StudentId string `gorm:"primaryKey"`
+	CourseId  string `gorm:"primaryKey"`
 	DeletedAt gorm.DeletedAt
 }
 

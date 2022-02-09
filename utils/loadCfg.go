@@ -3,20 +3,34 @@ package utils
 import (
 	"Course-Selection-Scheduling/pkg/config"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/ioutil"
+	"log"
+	"os"
 	"path"
+	"time"
 )
 
 //加载配置文件
 func LoadCfg(env string) {
 	basePath := path.Join("./config", env)
 
-	mysqlPath := path.Join(basePath, "mysql.yml")
-	config.MysqlCfg = NewMysqlConfig(mysqlPath)
-
 	logPath := path.Join(basePath, "log.yml")
 	config.LogCfg = NewLogConfig(logPath)
+	config.LogCfg.Path = path.Join(config.LogCfg.Path, time.Now().String())
+	logFile, err := os.Create(config.LogCfg.Path)
+	if err != nil {
+		panic(fmt.Sprintf("create logs failed, path: %v. err: %v", config.LogCfg.Path, err.Error()))
+	}
+	//设置logger日志
+	log.SetOutput(logFile)
+	//设置gin日志
+	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
+
+	mysqlPath := path.Join(basePath, "mysql.yml")
+	config.MysqlCfg = NewMysqlConfig(mysqlPath)
 
 	serverPath := path.Join(basePath, "server.yml")
 	config.ServerCfg = NewServerConfig(serverPath)
@@ -87,4 +101,11 @@ func NewSessionConfig(path string) config.Session {
 		panic(fmt.Sprintf("parse config file failed, path: %v. err: %v", path, err.Error()))
 	}
 	return session
+}
+
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }

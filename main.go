@@ -16,7 +16,6 @@ func main() {
 		db, _ := global.MysqlClient.DB() //获取已有sql连接
 		_ = db.Close()                   //关闭sql连接
 	}()
-
 	var env = flag.String("env", "dev", "配置环境")
 	flag.Parse() //获取命令行参数 根据参数选择配置文件 默认dev
 	utils.LoadCfg(*env)
