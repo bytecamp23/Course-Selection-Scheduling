@@ -1,47 +1,40 @@
 //基于dinic算法
+
 package course
 
 import (
 	"Course-Selection-Scheduling/utils"
-	"bufio"
-	"fmt"
 	"gopkg.in/eapache/queue.v1"
 	"math"
-	"os"
 )
 
 type edge struct {
-	u, v int
+	v, w, next int //出点、权值、邻接表下一项
 }
-type graph struct {
-	v, w, next int
+type point struct {
+	ID  string //原始ID
+	typ int    //类型（0:教师｜1:课程）
 }
 
+//图的一些信息
 var (
-	st, ed, m, n, tot int
-	dep, cur, head    []int
-	edges             []edge
-	e                 []graph
+	startID, endID, eSize int    //源点 汇点 中间边的数量
+	dep, cur, head        []int  //深度 当前弧标记 邻接表头
+	graph                 []edge //图
+)
+
+//映射解决教师ID与课程ID相同的情况
+var (
+	pointCnt   int               //点数
+	pointID    = map[point]int{} //映射后的ID
+	originalID []point           //原始ID
 )
 
 func add(u, v int) {
-	e = append(e, graph{v, 1, head[u]})
-	head[u] = len(e) - 1
-	e = append(e, graph{u, 0, head[v]})
-	head[v] = len(e) - 1
-}
-func input() {
-	reader := bufio.NewReader(os.Stdin)
-	reader = bufio.NewReaderSize(reader, 1e7)
-	fmt.Fscanf(reader, "%d %d\n", &m, &n)
-	var u, v int
-	for {
-		fmt.Fscanf(reader, "%d %d\n", &u, &v)
-		if u == -1 && v == -1 {
-			break
-		}
-		edges = append(edges, edge{u, v})
-	}
+	graph = append(graph, edge{v, 1, head[u]})
+	head[u] = len(graph) - 1
+	graph = append(graph, edge{u, 0, head[v]})
+	head[v] = len(graph) - 1
 }
 
 //构造分层
@@ -49,20 +42,20 @@ func bfs() bool {
 	for pos, _ := range dep {
 		dep[pos] = 0
 	}
-	dep[st] = 1
+	dep[startID] = 1
 	que := queue.New()
-	que.Add(st)
-	cur[st] = head[st]
+	que.Add(startID)
+	cur[startID] = head[startID]
 	for que.Length() > 0 {
 		u := que.Remove().(int)
-		for x := head[u]; x != 0; x = e[x].next {
-			v := e[x].v
-			w := e[x].w
+		for x := head[u]; x != 0; x = graph[x].next {
+			v := graph[x].v
+			w := graph[x].w
 			if w != 0 && (dep[v] == 0) {
 				cur[v] = head[v] //复原当前弧
 				dep[v] = dep[u] + 1
 				que.Add(v)
-				if v == ed {
+				if v == endID {
 					return true
 				}
 			}
@@ -73,59 +66,90 @@ func bfs() bool {
 
 //找增广
 func dfs(u, limit int) int {
-	if u == ed {
+	if u == endID {
 		return limit
 	}
 	flow := 0
-	for x := cur[u]; x != 0 && flow < limit; x = e[x].next {
+	for x := cur[u]; x != 0 && flow < limit; x = graph[x].next {
 		cur[u] = x //当前弧优化
-		v := e[x].v
-		w := e[x].w
+		v := graph[x].v
+		w := graph[x].w
 		if w != 0 && dep[v] == dep[u]+1 {
 			k := dfs(v, utils.Min(limit-flow, w)) //增广流量
 			if k != 0 {
 				dep[v] = 0 //剪枝，去掉增广完的点
 			}
-			e[x].w -= k
-			e[x^1].w += k
+			graph[x].w -= k
+			graph[x^1].w += k
 			flow += k
 		}
 	}
 	return flow //增广流量
 }
 
-func dinic() int {
+func dinicRun() int {
 	maxflow := 0
 	for bfs() {
-		for flow := dfs(st, math.MaxInt); flow != 0; flow = dfs(st, math.MaxInt) {
+		for flow := dfs(startID, math.MaxInt); flow != 0; flow = dfs(startID, math.MaxInt) {
 			maxflow += flow
 		}
 	}
 	return maxflow
 }
 
-/*func main() {
-	input()
-	//st:=0 ed:=n+1 teacher:=[1,m],course:=[m+1,n]
-	dep = make([]int, n+2)
-	cur = make([]int, n+2)
-	head = make([]int, n+2)
-	e = make([]graph, 2) //前2个不使用
-	st = 0
-	ed = n + 1
-	for v := 1; v <= m; v++ {
-		add(st, v)
-	}
-	for u := m + 1; u <= n; u++ {
-		add(u, ed)
-	}
-	for _, edge := range edges {
-		add(edge.u, edge.v)
-	}
-	fmt.Println(dinic())
-	for x := 2; x < len(e); x += 2 {
-		if e[x].v >= m+1 && e[x].v <= n && e[x].w == 0 {
-			fmt.Printf("%d %d\n", e[x^1].v, e[x].v)
+func initDinic(request map[string][]string) {
+	//离散化
+	for u, courses := range request {
+		pointU := point{u, 0}
+		if pointID[pointU] == 0 {
+			originalID = append(originalID, pointU)
+			pointID[pointU] = pointCnt
+			pointCnt++
+		}
+		for _, v := range courses {
+			pointV := point{v, 1}
+			if pointID[pointV] == 0 {
+				originalID = append(originalID, pointV)
+				pointID[pointV] = pointCnt
+				pointCnt++
+			}
 		}
 	}
-}*/
+
+	graph = make([]edge, 2) //前2个不使用
+	dep = make([]int, pointCnt+2)
+	cur = make([]int, pointCnt+2)
+	head = make([]int, pointCnt+2)
+	startID = pointCnt
+	endID = pointCnt + 1
+
+	for u, courses := range request {
+		uID := pointID[point{u, 0}]
+		for _, v := range courses {
+			vID := pointID[point{v, 1}]
+			add(uID, vID)
+		}
+	}
+	eSize = len(graph)
+
+	for id, pointInfo := range originalID {
+		if pointInfo.typ == 0 {
+			add(startID, id)
+		} else {
+			add(id, endID)
+		}
+	}
+}
+
+func dinic(request map[string][]string) map[string]string {
+	initDinic(request)
+	respond := make(map[string]string, dinicRun())
+	//log.Printf("排课完成 总共%d节课\n", run())
+	for x := 2; x < eSize; x += 2 {
+		if graph[x].w == 0 {
+			respond[originalID[graph[x^1].v].ID] = originalID[graph[x].v].ID
+			//log.Printf("教师号：%s课程号：%s\n", originalID[graph[x^1].v].ID, originalID[graph[x].v].ID)
+		}
+	}
+	return respond
+}
