@@ -69,7 +69,12 @@ func GetFromRedis(key string) (interface{}, error) {
 func PutToRedis(key string, value interface{}, timeout int) error {
 	rc := global.RedisClient.Get()
 	defer rc.Close()
-	_, err := rc.Do("SET", key, value, "EX", timeout)
+	var err error
+	if timeout == -1 {
+		_, err = rc.Do("SET", key, value)
+	} else {
+		_, err = rc.Do("SET", key, value, "EX", timeout)
+	}
 	return err
 }
 

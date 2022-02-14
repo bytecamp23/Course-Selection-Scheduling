@@ -21,22 +21,40 @@ func BookCourse(c *gin.Context) {
 		return
 	}
 	//生成userCourse ,防止同一个用户多次抢同一门课
-	stuCourse := fmt.Sprintf("%s_%s", requestData.StudentID, requestData.CourseID)
-	value, err := myredis.GetFromRedis(stuCourse)
-	log.Println(value)
+	SC := fmt.Sprintf("%s_%s", requestData.StudentID, requestData.CourseID)
+	freqentSC := "frequent_" + SC
+	successSC := "success_" + SC
+
+	//限制抢课频率
+	value, err := myredis.GetFromRedis(freqentSC)
 	if err != nil {
 		log.Println(err.Error())
 		return
+	}
+	if value != nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.RepeatRequest},
+		)
+		return
 	} else {
-		if value != nil {
-			c.JSON(
-				http.StatusOK,
-				global.BookCourseResponse{Code: global.RepeatRequest},
-			)
-			return
-		} else {
-			myredis.PutToRedis(stuCourse, "true", 5) //5秒内只能抢一次
-		}
+		myredis.PutToRedis(freqentSC, "true", 5) //5秒内只能抢一次
+	}
+
+	//限制重复抢课
+	value, err = myredis.GetFromRedis(successSC)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	if value != nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.RepeatRequest},
+		)
+		return
+	} else {
+		myredis.PutToRedis(successSC, "true", -1)
 	}
 
 	//查询课程余量并减库存 , 数据库操作送入消息队列中
