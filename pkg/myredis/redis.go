@@ -79,3 +79,10 @@ func DeleteFromRedis(key string) error {
 	_, err := rc.Do("DEL", key)
 	return err
 }
+
+func DecrForRedis(key string) (interface{}, error) {
+	rc := global.RedisClient.Get()
+	defer rc.Close()
+	value, err := rc.Do("DECR", key)
+	return value, err
+}

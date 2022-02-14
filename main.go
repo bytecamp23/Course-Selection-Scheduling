@@ -6,6 +6,7 @@ import (
 	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/pkg/myredis"
+	"Course-Selection-Scheduling/pkg/rabbitmq"
 	"Course-Selection-Scheduling/utils"
 	"flag"
 )
@@ -22,5 +23,8 @@ func main() {
 	utils.SetLogPath()
 	global.MysqlClient = mydb.NewMysqlConn(&config.MysqlCfg)
 	global.RedisClient = myredis.NewRedisClient(&config.RedisCfg)
+
+	rmq := rabbitmq.NewRabbitMQSimple("bookcourse") //打开rmq消费者
+	rmq.ConsumeSimple()
 	server.Run()
 }
