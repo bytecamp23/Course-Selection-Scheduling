@@ -5,7 +5,6 @@ import (
 	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/pkg/myredis"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -14,24 +13,18 @@ import (
 //验证用户名与密码
 func signUsername(username string, password string) global.ErrNo {
 	db := mydb.NewMysqlConn(&config.MysqlCfg)
-	usernameLen := len(username)
-	passwordLen := len(password)
-	if usernameLen < 9 || usernameLen > 20 || passwordLen < 9 || passwordLen > 20 {
-		return global.ParamInvalid
-	}
 	var user mydb.User
 	db.Unscoped().Where("username = ?", username).First(&user)
 	if user.DeletedAt.Valid {
 		return global.UserHasDeleted
 	} else if user.Username != username {
 		return global.UserNotExisted
-	} else if  user.Password != password{
+	} else if user.Password != password {
 		return global.WrongPassword
 	} else {
 		return global.OK
 	}
 }
-
 
 //登录
 func Login(c *gin.Context) {
@@ -39,7 +32,8 @@ func Login(c *gin.Context) {
 	var res global.LoginResponse
 	err := c.ShouldBindJSON(&json)
 	if err != nil {
-		fmt.Println("json fail ", err)
+		res.Code = global.ParamInvalid
+		c.JSON(401, &res)
 		return
 	}
 	//print(json.Username, json.Password)
@@ -50,9 +44,9 @@ func Login(c *gin.Context) {
 	}
 	u1, _ := uuid.NewUUID()
 	http.SetCookie(c.Writer, &http.Cookie{
-		Name : "camp-session",
+		Name:  "camp-session",
 		Value: u1.String(),
-		Path: "/api/v1",
+		Path:  "/api/v1",
 	})
 	//c.SetCookie("camp-session", u1.String(), -1, "/", "localhost" ,false, false)
 	global.RedisClient = myredis.NewRedisClient(&config.RedisCfg)
