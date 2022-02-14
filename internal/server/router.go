@@ -2,6 +2,8 @@ package server
 
 import (
 	"Course-Selection-Scheduling/internal/api/course"
+	"Course-Selection-Scheduling/internal/api/login"
+	"Course-Selection-Scheduling/internal/api/member"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,17 +11,16 @@ func registerRouter(r *gin.Engine) {
 	g := r.Group("/api/v1")
 
 	// 成员管理
-	g.POST("/member/create")
-	g.GET("/member")
-	g.GET("/member/list")
-	g.POST("/member/update")
-	g.POST("/member/delete")
+	g.POST("/member/create", member.CreateMember)
+	g.GET("/member", login.GetMember)
+	g.GET("/member/list", member.ListMember)
+	g.POST("/member/update", member.UpdateMember)
+	g.POST("/member/delete", member.DeleteMember)
 
 	// 登录
-
-	g.POST("/auth/login")
-	g.POST("/auth/logout")
-	g.GET("/auth/whoami")
+	g.POST("/auth/login", login.Login)
+	g.POST("/auth/logout", login.Logout)
+	g.GET("/auth/whoami", login.Whoami)
 
 	// 排课
 	g.POST("/course/create")

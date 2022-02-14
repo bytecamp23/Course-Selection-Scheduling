@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-//加载配置文件
+// LoadCfg 加载配置文件
 func LoadCfg(env string) {
 	basePath := path.Join("./config", env)
 
