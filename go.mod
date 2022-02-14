@@ -6,7 +6,9 @@ require (
 	github.com/garyburd/redigo v1.6.3
 	github.com/gin-contrib/sessions v0.0.4
 	github.com/gin-gonic/gin v1.7.7
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.3.0
+	github.com/streadway/amqp v1.0.0
 	gopkg.in/eapache/queue.v1 v1.1.0
 	gopkg.in/yaml.v2 v2.2.8
 	gorm.io/driver/mysql v1.2.3

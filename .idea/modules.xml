@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Course-Selection-Scheduling.iml" filepath="$PROJECT_DIR$/.idea/Course-Selection-Scheduling.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Course-Selection-Scheduling-main.iml" filepath="$PROJECT_DIR$/.idea/Course-Selection-Scheduling-main.iml" />
     </modules>
   </component>
 </project>
