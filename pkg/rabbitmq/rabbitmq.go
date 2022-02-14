@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-const MQURL = "amqp://guest:guest1234@localhost:5672/"
+const MQURL = "amqp://guest:guest@localhost:5672/"
 
 type RabbitMQ struct {
 	coon      *amqp.Connection
