@@ -6,9 +6,9 @@ import (
 	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/pkg/myredis"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
+	"strconv"
 )
 
 //创建成员接口
@@ -83,6 +83,7 @@ func UpdateMember(c *gin.Context) {
 	var json global.UpdateMemberRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
 		// TODO: ParamInvalid
+		fmt.Println(err)
 		updateMemberResponse := global.UpdateMemberResponse{
 			Code: global.ParamInvalid,
 		}
@@ -134,7 +135,7 @@ func DeleteMember(c *gin.Context) {
 //批量获取成员
 func ListMember(c *gin.Context) {
 	var json global.GetMemberListRequest
-	if err := c.ShouldBindJSON(&json); err != nil {
+	if err := c.ShouldBindQuery(&json); err != nil {
 		// TODO: ParamInvalid
 		getMemberResponse := global.GetMemberListResponse{
 			Code: global.ParamInvalid,
@@ -142,10 +143,13 @@ func ListMember(c *gin.Context) {
 		c.JSON(200, getMemberResponse)
 		return
 	}
+	fmt.Println(json)
 	var users []mydb.User
 	var res global.GetMemberListResponse
+	offset, _ := strconv.Atoi(json.Offset)
+	limit, _ := strconv.Atoi(json.Limit)
 	db := mydb.NewMysqlConn(&config.MysqlCfg)
-	db.Model(&mydb.User{}).Offset(json.Offset).Limit(json.Limit).Find(&users)
+	db.Model(&mydb.User{}).Offset(offset).Limit(limit).Find(&users)
 	res.Data.MemberList = make([]global.TMember, len(users))
 	for i := 0; i < len(users); i++ {
 		res.Data.MemberList[i].UserType = users[i].UserType
@@ -160,7 +164,7 @@ func ListMember(c *gin.Context) {
 // 获取单个成员
 func GetMember(c *gin.Context) {
 	var json global.GetMemberRequest
-	if err := c.ShouldBindJSON(&json); err != nil {
+	if err := c.ShouldBindQuery(&json); err != nil {
 		// TODO: ParamInvalid
 		getMemberResponse := global.GetMemberResponse{
 			Code: global.ParamInvalid,

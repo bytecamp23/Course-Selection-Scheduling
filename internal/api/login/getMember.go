@@ -14,7 +14,7 @@ func GetMember(c *gin.Context) {
 	var json global.GetMemberRequest
 	var res global.GetMemberResponse
 	var user mydb.User
-	_ = c.ShouldBindJSON(&json)
+	_ = c.ShouldBindQuery(&json)
 	global.MysqlClient.Unscoped().Where("user_id = ?", json.UserID).First(&user)
 	if user.UserId == json.UserID {
 		if user.DeletedAt.Valid {
