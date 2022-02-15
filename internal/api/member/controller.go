@@ -67,6 +67,9 @@ func CreateMember(c *gin.Context) {
 	} else {
 		res.Code = global.OK
 		res.Data.UserID = saveMember(json.Nickname, json.Username, json.Password, json.UserType)
+		if json.UserType == global.Student {
+			myredis.PutToRedis("student_"+res.Data.UserID, "true", -1)
+		}
 		c.JSON(200, &res)
 	}
 }
@@ -139,6 +142,9 @@ func DeleteMember(c *gin.Context) {
 	db := mydb.NewMysqlConn(&config.MysqlCfg)
 	db.Where("user_id = ?", json.UserID).First(&user)
 	if user.UserId == json.UserID {
+		if user.UserType == global.Student {
+			myredis.DeleteFromRedis("student_" + user.UserId)
+		}
 		db.Delete(&user)
 		res.Code = global.OK
 	} else {

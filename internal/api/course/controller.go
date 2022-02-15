@@ -3,6 +3,7 @@ package course
 import (
 	"Course-Selection-Scheduling/internal/global"
 	"Course-Selection-Scheduling/pkg/mydb"
+	"Course-Selection-Scheduling/pkg/myredis"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -60,7 +61,7 @@ func CreateCourse(c *gin.Context) {
 		Cap:  createCourseRequest.Cap,
 	}
 	_ = global.MysqlClient.Create(&course)
-	fmt.Println(course)
+	myredis.PutToRedis("course_"+course.CourseId, course.Cap, -1)
 	createCourseResponse := global.CreateCourseResponse{
 		Code: global.OK,
 		Data: struct{ CourseID string }{CourseID: course.CourseId},

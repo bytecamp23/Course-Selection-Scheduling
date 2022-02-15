@@ -2,7 +2,6 @@ package student
 
 import (
 	"Course-Selection-Scheduling/internal/global"
-	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/pkg/myredis"
 	"Course-Selection-Scheduling/pkg/rabbitmq"
@@ -23,13 +22,32 @@ func BookCourse(c *gin.Context) {
 		)
 		return
 	}
+	//课程不存在
+	value, err := myredis.GetFromRedis("course_" + requestData.CourseID)
+	if value == nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.CourseNotExisted},
+		)
+		return
+	}
+	//学生不存在
+	value, err = myredis.GetFromRedis("student_" + requestData.StudentID)
+	if value == nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.StudentNotExisted},
+		)
+		return
+	}
+
 	//生成userCourse ,防止同一个用户多次抢同一门课
 	SC := fmt.Sprintf("%s_%s", requestData.StudentID, requestData.CourseID)
 	freqentSC := "frequent_" + SC
 	successSC := "success_" + SC
 
 	//限制抢课频率
-	value, err := myredis.GetFromRedis(freqentSC)
+	value, err = myredis.GetFromRedis(freqentSC)
 	if err != nil {
 		c.JSON(
 			http.StatusOK,
@@ -65,7 +83,7 @@ func BookCourse(c *gin.Context) {
 	}
 
 	//查询课程余量并减库存 , 数据库操作送入消息队列中
-	value, err = myredis.DecrForRedis(requestData.CourseID)
+	value, err = myredis.DecrForRedis("course_" + requestData.CourseID)
 	if err != nil {
 		c.JSON(
 			http.StatusOK,
@@ -74,7 +92,7 @@ func BookCourse(c *gin.Context) {
 		return
 	}
 	if value.(int64) < 0 {
-		myredis.IncrForRedis(requestData.CourseID) //加回来
+		myredis.IncrForRedis("course_" + requestData.CourseID) //加回来
 		c.JSON(
 			http.StatusOK,
 			global.BookCourseResponse{Code: global.CourseNotAvailable},
@@ -111,12 +129,20 @@ func QueryCourse(c *gin.Context) {
 		c.JSON(200, getStudentCourseResponse)
 		return
 	}
+	//学生不存在
+	value, _ := myredis.GetFromRedis("student_" + json.StudentID)
+	if value == nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.StudentNotExisted},
+		)
+		return
+	}
 
 	var coursesInfo []mydb.Course
 	var res global.GetStudentCourseResponse
-	db := mydb.NewMysqlConn(&config.MysqlCfg)
+	db := global.MysqlClient
 	db.Model(&mydb.Course{}).Where("student_id = ?", json.StudentID).Find(&coursesInfo)
-
 	res.Data.CourseList = make([]global.TCourse, len(coursesInfo))
 	for i := 0; i < len(coursesInfo); i++ {
 		res.Data.CourseList[i].Name = coursesInfo[i].Name
