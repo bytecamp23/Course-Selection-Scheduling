@@ -2,6 +2,8 @@ package course
 
 import (
 	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/pkg/mydb"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -39,4 +41,54 @@ func ScheduleCourse(c *gin.Context) {
 		http.StatusOK,
 		global.ScheduleCourseResponse{Code: global.OK, Data: respondData},
 	)
+}
+
+func CreateCourse(c *gin.Context) {
+	var createCourseRequest global.CreateCourseRequest
+	if err := c.ShouldBindJSON(&createCourseRequest); err != nil {
+		// TODO: ParamInvalid
+		createCourseResponse := global.CreateCourseResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, createCourseResponse)
+		return
+	}
+
+	course := mydb.Course{
+		Name: createCourseRequest.Name,
+		Cap:  createCourseRequest.Cap,
+	}
+	_ = global.MysqlClient.Create(&course)
+	fmt.Println(course)
+	createCourseResponse := global.CreateCourseResponse{
+		Code: global.OK,
+		Data: struct{ CourseID string }{CourseID: course.CourseId},
+	}
+	c.JSON(200, createCourseResponse)
+	return
+}
+
+func GetCourse(c *gin.Context) {
+	var getCourseRequest global.GetCourseRequest
+	if err := c.ShouldBindJSON(&getCourseRequest); err != nil {
+		// TODO: ParamInvalid
+		fmt.Println(err.Error())
+		getCourseResponse := global.GetCourseResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, getCourseResponse)
+		return
+	}
+	var course mydb.Course
+	global.MysqlClient.Model(&course).Where("course_id = ?", getCourseRequest.CourseID).First(&course)
+	getCourseResponse := global.GetCourseResponse{
+		Code: global.OK,
+		Data: struct {
+			CourseID  string
+			Name      string
+			TeacherID string
+		}{CourseID: course.CourseId, Name: course.Name, TeacherID: course.TeacherId},
+	}
+	c.JSON(200, getCourseResponse)
+	return
 }

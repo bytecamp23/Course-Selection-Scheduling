@@ -21,7 +21,7 @@ type Course struct {
 	CourseId  string `gorm:"primaryKey"`
 	Name      string
 	Cap       int
-	TeacherId *int64
+	TeacherId string
 	DeletedAt gorm.DeletedAt
 }
 

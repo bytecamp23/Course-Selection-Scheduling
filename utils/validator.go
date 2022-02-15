@@ -41,7 +41,15 @@ func UserTypeValidator(fl validator.FieldLevel) bool {
 	return true
 }
 
-func UserIDValidator(fl validator.FieldLevel) bool {
+func IsDigitValidator(fl validator.FieldLevel) bool {
+	userID := fl.Field().Interface().(string)
+	if ret, _ := regexp.MatchString(isDigit, userID); !ret {
+		return false
+	}
+	return true
+}
+
+func IsUpperOrLowerOrDigitValidator(fl validator.FieldLevel) bool {
 	userID := fl.Field().Interface().(string)
 	if ret, _ := regexp.MatchString(isDigit, userID); !ret {
 		return false

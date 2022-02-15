@@ -100,7 +100,8 @@ func BookCourse(c *gin.Context) {
 	)
 }
 
-func QueryCourse(c *gin.Context){
+// 根据学生信息查询课程列表
+func QueryCourse(c *gin.Context) {
 	var json global.GetStudentCourseRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
 		// TODO: ParamInvalid
@@ -122,4 +123,6 @@ func QueryCourse(c *gin.Context){
 		res.Data.CourseList[i].CourseID = coursesInfo[i].CourseId
 		res.Data.CourseList[i].TeacherID = coursesInfo[i].TeacherId
 	}
+	res.Code = global.OK
+	c.JSON(200, &res)
 }
