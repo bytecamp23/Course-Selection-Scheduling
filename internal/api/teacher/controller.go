@@ -2,7 +2,9 @@ package teacher
 
 import (
 	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -22,17 +24,29 @@ func BindCourse(c *gin.Context) {
 		CourseId:  bindCourseRequest.CourseID,
 	}
 	// TODO: CourseNotExisted
+	var course mydb.Course
 	if err := global.MysqlClient.
-		Model(&mydb.Course{}).
+		Model(&course).
 		Where("course_id = ?", bindCourseRequest.CourseID).
-		First(&mydb.Course{}); err.Error == gorm.ErrRecordNotFound {
+		First(&course); err.Error == gorm.ErrRecordNotFound {
 		bindCourseResponse := global.BindCourseResponse{
 			Code: global.CourseNotExisted,
 		}
 		c.JSON(200, bindCourseResponse)
 		return
 	}
-	// TODO: CourseNotExisted
+	fmt.Println(course)
+	//已绑定
+	fmt.Println(course.TeacherId)
+	if course.TeacherId != nil {
+		bindCourseResponse := global.BindCourseResponse{
+			Code: global.CourseHasBound,
+		}
+		c.JSON(200, bindCourseResponse)
+		return
+	}
+
+	// TODO: TeacherNotExisted
 	if err := global.MysqlClient.
 		Model(&mydb.User{}).
 		Where("user_id = ?", bindCourseRequest.TeacherID).
@@ -43,10 +57,22 @@ func BindCourse(c *gin.Context) {
 		c.JSON(200, bindCourseResponse)
 		return
 	}
-	// TODO: CourseHasBound
+	//绑定课程
 	if err := global.MysqlClient.Model(&mydb.BindCourse{}).Create(&bindCourse); err.Error != nil {
 		bindCourseResponse := global.BindCourseResponse{
-			Code: global.CourseHasBound,
+			Code: global.UnknownError,
+		}
+		c.JSON(200, bindCourseResponse)
+		return
+	}
+	//添加课程绑定的教师号
+	db := mydb.NewMysqlConn(&config.MysqlCfg)
+	fmt.Println(course.CourseId)
+	db.Unscoped().Where("course_id = ?", bindCourseRequest.CourseID).First(&course)
+	course.TeacherId = &bindCourseRequest.TeacherID
+	if err := db.Save(&course); err.Error != nil {
+		bindCourseResponse := global.BindCourseResponse{
+			Code: global.UnknownError,
 		}
 		c.JSON(200, bindCourseResponse)
 		return
