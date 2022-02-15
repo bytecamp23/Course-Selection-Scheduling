@@ -44,7 +44,7 @@ func BindCourse(c *gin.Context) {
 		return
 	}
 
-	// TODO: TeacherNotExisted
+	/*// TODO: TeacherNotExisted
 	if err := global.MysqlClient.
 		Model(&mydb.User{}).
 		Where("user_id = ?", bindCourseRequest.TeacherID).
@@ -54,14 +54,14 @@ func BindCourse(c *gin.Context) {
 		}
 		c.JSON(200, bindCourseResponse)
 		return
-	}
+	}*/
 	//恢复软删除
 	db.Model(bindCourse).Unscoped().Update("deleted_at", nil)
 	//绑定课程
 	global.MysqlClient.Model(&mydb.BindCourse{}).Create(&bindCourse)
 
 	//添加课程绑定的教师号
-	db.Unscoped().Where("course_id = ?", bindCourseRequest.CourseID).First(&course)
+	db.Where("course_id = ?", bindCourseRequest.CourseID).First(&course)
 	course.TeacherId = &bindCourseRequest.TeacherID
 	if err := db.Save(&course); err.Error != nil {
 		bindCourseResponse := global.BindCourseResponse{
@@ -128,7 +128,7 @@ func UnBindCourse(c *gin.Context) {
 
 	//删除课程绑定的教师号
 	db := mydb.NewMysqlConn(&config.MysqlCfg)
-	db.Unscoped().Where("course_id = ?", unbindCourseRequest.CourseID).First(&mydb.Course{})
+	db.Where("course_id = ?", unbindCourseRequest.CourseID).First(&mydb.Course{})
 
 	course.TeacherId = nil
 	if err := db.Save(&course); err.Error != nil {
@@ -148,7 +148,7 @@ func UnBindCourse(c *gin.Context) {
 
 func GetTeacherCourse(c *gin.Context) {
 	var getTeacherCourseRequest global.GetTeacherCourseRequest
-	if err := c.ShouldBindJSON(&getTeacherCourseRequest); err != nil {
+	if err := c.ShouldBindQuery(&getTeacherCourseRequest); err != nil {
 		// TODO: ParamInvalid
 		getTeacherCourseResponse := global.GetTeacherCourseResponse{
 			Code: global.ParamInvalid,

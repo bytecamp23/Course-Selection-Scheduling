@@ -58,7 +58,6 @@ func CreateMember(c *gin.Context) {
 		c.JSON(200, createMemberResponse)
 		return
 	}*/
-	fmt.Println(json)
 	db.Unscoped().Where("username = ?", json.Username).First(&user)
 	//检验用户名是否已经存在
 	if user.Username == json.Username {
