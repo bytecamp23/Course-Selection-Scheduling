@@ -43,7 +43,7 @@ func CreateMember(c *gin.Context) {
 		createMemberResponse := global.CreateMemberResponse{
 			Code: global.ParamInvalid,
 		}
-		c.JSON(400, createMemberResponse)
+		c.JSON(200, createMemberResponse)
 		return
 	}
 
@@ -53,7 +53,7 @@ func CreateMember(c *gin.Context) {
 	if user.Username == json.Username {
 		res.Code = global.UserHasExisted
 		res.Data.UserID = user.UserId
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 	} else {
 		res.Code = global.OK
 		res.Data.UserID = saveMember(json.Nickname, json.Username, json.Password, json.UserType)
@@ -82,7 +82,7 @@ func UpdateMember(c *gin.Context) {
 		updateMemberResponse := global.UpdateMemberResponse{
 			Code: global.ParamInvalid,
 		}
-		c.JSON(400, updateMemberResponse)
+		c.JSON(200, updateMemberResponse)
 		return
 	}
 	var user mydb.User
@@ -111,7 +111,7 @@ func DeleteMember(c *gin.Context) {
 		deleteMemberResponse := global.DeleteMemberResponse{
 			Code: global.ParamInvalid,
 		}
-		c.JSON(400, deleteMemberResponse)
+		c.JSON(200, deleteMemberResponse)
 		return
 	}
 	var user mydb.User
@@ -135,7 +135,7 @@ func ListMember(c *gin.Context) {
 		getMemberResponse := global.GetMemberListResponse{
 			Code: global.ParamInvalid,
 		}
-		c.JSON(400, getMemberResponse)
+		c.JSON(200, getMemberResponse)
 		return
 	}
 	var users []mydb.User

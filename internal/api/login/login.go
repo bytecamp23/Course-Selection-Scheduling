@@ -42,6 +42,8 @@ func Login(c *gin.Context) {
 		c.JSON(200, &res)
 		return
 	}
+	data, _ := c.Cookie("camp-session")
+	myredis.DeleteFromRedis(data)
 	u1, _ := uuid.NewUUID()
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:  "camp-session",
