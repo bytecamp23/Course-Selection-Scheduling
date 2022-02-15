@@ -3,6 +3,7 @@ package login
 import (
 	"Course-Selection-Scheduling/internal/global"
 	"Course-Selection-Scheduling/pkg/mydb"
+	"Course-Selection-Scheduling/pkg/myredis"
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
 	"log"
@@ -40,7 +41,7 @@ func Whoami(c *gin.Context) {
 		c.JSON(200, &res)
 		return
 	}
-	username, err := redis.String(global.RedisClient.Get().Do("GET", data))
+	username, err := redis.String(myredis.GetFromRedis(data))
 	log.Printf(username)
 	if err != nil {
 		res.Code = global.LoginRequired

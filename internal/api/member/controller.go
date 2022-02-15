@@ -4,6 +4,7 @@ import (
 	"Course-Selection-Scheduling/internal/global"
 	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
+	"Course-Selection-Scheduling/pkg/myredis"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -21,14 +22,15 @@ func CreateMember(c *gin.Context) {
 	}
 
 	//检验是否有权限创建成员
-	var mem mydb.User // 当前操作者的身份
-	name, err := redis.String(global.RedisClient.Get().Do("GET", val))
+	name, err := redis.String(myredis.GetFromRedis(val))
 	if err != nil {
+		fmt.Println(err)
 		res.Code = global.PermDenied
 		c.JSON(200, &res)
 		return
 	}
-	db := mydb.NewMysqlConn(&config.MysqlCfg)
+	var mem mydb.User // 当前操作者的身份
+	db := global.MysqlClient
 	db.Where("username = ?", name).First(&mem)
 	if mem.UserType != global.Admin {
 		res.Code = global.PermDenied
@@ -72,6 +74,7 @@ func saveMember(nickname string, username string, password string, usertype glob
 	user.UserType = usertype
 	fmt.Println(user)
 	db.Create(&user)
+	fmt.Println(user.UserId)
 	return user.UserId
 }
 
@@ -155,7 +158,7 @@ func ListMember(c *gin.Context) {
 }
 
 // 获取单个成员
-func GetMember(c *gin.Context){
+func GetMember(c *gin.Context) {
 	var json global.GetMemberRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
 		// TODO: ParamInvalid

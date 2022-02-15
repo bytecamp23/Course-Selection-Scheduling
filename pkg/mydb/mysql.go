@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	UserId    string `gorm:"primaryKey"`
+	UserId    string `gorm:"primaryKey;autoIncrement"`
 	Nickname  string
 	Username  string
 	Password  string
@@ -18,7 +18,7 @@ type User struct {
 }
 
 type Course struct {
-	CourseId  string `gorm:"primaryKey"`
+	CourseId  string `gorm:"primaryKey;autoIncrement"`
 	Name      string
 	Cap       int
 	TeacherId string

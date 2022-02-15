@@ -53,7 +53,9 @@ func Login(c *gin.Context) {
 	//c.SetCookie("camp-session", u1.String(), -1, "/", "localhost" ,false, false)
 	global.RedisClient = myredis.NewRedisClient(&config.RedisCfg)
 	rdb := global.RedisClient.Get()
+	defer rdb.Close()
 	rdb.Do("SET", u1.String(), json.Username)
 	rdb.Do("EXPIRE", u1.String(), 60*60)
+
 	c.JSON(200, &res)
 }
