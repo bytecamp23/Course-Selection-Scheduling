@@ -49,7 +49,15 @@ func CreateMember(c *gin.Context) {
 		c.JSON(200, createMemberResponse)
 		return
 	}
-
+	/*errs := validate.Struct(json)
+	if errs != nil {
+		fmt.Println(errs.Errors)
+		createMemberResponse := global.CreateMemberResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, createMemberResponse)
+		return
+	}*/
 	fmt.Println(json)
 	db.Where("username = ?", json.Username).First(&user)
 	//检验用户名是否已经存在
@@ -90,6 +98,14 @@ func UpdateMember(c *gin.Context) {
 		c.JSON(200, updateMemberResponse)
 		return
 	}
+	/*errs := validate.Struct(json)
+	if errs != nil {
+		createMemberResponse := global.CreateMemberResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, createMemberResponse)
+		return
+	}*/
 	var user mydb.User
 	var res global.UpdateMemberResponse
 	db := mydb.NewMysqlConn(&config.MysqlCfg)
