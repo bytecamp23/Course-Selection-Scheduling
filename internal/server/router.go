@@ -5,6 +5,7 @@ import (
 	"Course-Selection-Scheduling/internal/api/login"
 	"Course-Selection-Scheduling/internal/api/member"
 	"Course-Selection-Scheduling/internal/api/student"
+	"Course-Selection-Scheduling/internal/api/teacher"
 	"Course-Selection-Scheduling/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -40,13 +41,19 @@ func registerRouter(r *gin.Engine) {
 	}
 
 	// 排课
-	g.POST("/course/create")
-	g.GET("/course/get")
+	courseRouter := g.Group("course")
+	{
+		courseRouter.POST("/create", course.CreateCourse)
+		courseRouter.GET("/get", course.GetCourse)
+		courseRouter.POST("/course/schedule", course.ScheduleCourse)
+	}
 
-	g.POST("/teacher/bind_course")
-	g.POST("/teacher/unbind_course")
-	g.GET("/teacher/get_course")
-	g.POST("/course/schedule", course.ScheduleCourse)
+	teacherRouter := g.Group("teacher")
+	{
+		teacherRouter.POST("/bind_course", teacher.BindCourse)
+		teacherRouter.POST("/unbind_course", teacher.UnBindCourse)
+		teacherRouter.GET("/get_course", teacher.GetTeacherCourse)
+	}
 
 	// 抢课
 	g.POST("/student/book_course", student.BookCourse)

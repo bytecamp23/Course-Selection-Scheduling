@@ -211,3 +211,89 @@ VALUES ('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022', 1); #默认管理员账
 
 具体而言当$N*M>1000000$我们采用Dinic算法，否则我们采用匈牙利算法。
 
+### 异常处理
+
+#### 用户模块
+
+* create
+
+ParamInvalid
+UserHasExisted
+
+* get
+
+ParamInvalid
+UserHasDeleted
+UserNotExisted
+
+* list
+
+ParamInvalid
+
+* update
+
+ParamInvalid
+UserHasDeleted
+UserNotExisted
+
+* delete
+
+ParamInvalid
+UserHasDeleted
+UserNotExisted
+
+#### 登陆模块
+
+* login
+
+ParamInvalid
+UserHasDeleted
+UserNotExisted
+WrongPassword
+
+* logout
+
+ParamInvalid
+LoginRequired
+
+* whoami
+
+ParamInvalid
+LoginRequired
+
+#### 排课模块
+
+* create
+
+ParamInvalid
+课程已存在？UnknownError
+
+* get
+
+ParamInvalid
+CourseNotExisted
+
+* schedule
+
+* bind
+
+ParamInvalid
+CourseHasBound
+PermDenied
+CourseNotExisted
+
+* unbind
+
+ParamInvalid
+CourseNotBound
+PermDenied
+CourseNotExisted
+
+* get
+
+ParamInvalid
+CourseNotBound
+CourseNotExisted
+
+#### 选课模块
+
