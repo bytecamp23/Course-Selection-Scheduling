@@ -59,7 +59,7 @@ func CreateMember(c *gin.Context) {
 		return
 	}*/
 	fmt.Println(json)
-	db.Where("username = ?", json.Username).First(&user)
+	db.Unscoped().Where("username = ?", json.Username).First(&user)
 	//检验用户名是否已经存在
 	if user.Username == json.Username {
 		res.Code = global.UserHasExisted
