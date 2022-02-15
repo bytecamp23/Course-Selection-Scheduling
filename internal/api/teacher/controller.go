@@ -30,15 +30,28 @@ func BindCourse(c *gin.Context) {
 			Code: global.CourseNotExisted,
 		}
 		c.JSON(200, bindCourseResponse)
+		return
+	}
+	// TODO: CourseNotExisted
+	if err := global.MysqlClient.
+		Model(&mydb.User{}).
+		Where("user_id = ?", bindCourseRequest.TeacherID).
+		First(&mydb.User{}); err.Error == gorm.ErrRecordNotFound {
+		bindCourseResponse := global.BindCourseResponse{
+			Code: global.UserNotExisted,
+		}
+		c.JSON(200, bindCourseResponse)
+		return
 	}
 	// TODO: CourseHasBound
-	if err := global.MysqlClient.Model(&mydb.BindCourse{}).Create(&bindCourse); err != nil {
+	if err := global.MysqlClient.Model(&mydb.BindCourse{}).Create(&bindCourse); err.Error != nil {
 		bindCourseResponse := global.BindCourseResponse{
 			Code: global.CourseHasBound,
 		}
 		c.JSON(200, bindCourseResponse)
 		return
 	}
+
 	bindCourseResponse := global.BindCourseResponse{
 		Code: global.OK,
 	}
