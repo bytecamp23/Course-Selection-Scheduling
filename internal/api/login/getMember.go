@@ -5,6 +5,7 @@ import (
 	"Course-Selection-Scheduling/pkg/mydb"
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
+	"log"
 )
 
 //获取成员信息
@@ -32,16 +33,18 @@ func GetMember(c *gin.Context) {
 
 func Whoami(c *gin.Context) {
 	data, err := c.Cookie("camp-session")
+	log.Println(data)
 	var res global.WhoAmIResponse
 	if err != nil {
 		res.Code = global.LoginRequired
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 		return
 	}
 	username, err := redis.String(global.RedisClient.Get().Do("GET", data))
+	log.Printf(username)
 	if err != nil {
 		res.Code = global.LoginRequired
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 		return
 	}
 	var user mydb.User
@@ -53,8 +56,8 @@ func Whoami(c *gin.Context) {
 		res.Data.Nickname = user.Nickname
 		res.Data.UserID = user.UserId
 		c.JSON(200, &res)
-	}  else {
+	} else {
 		res.Code = global.LoginRequired
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 	}
 }
