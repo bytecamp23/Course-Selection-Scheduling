@@ -21,7 +21,7 @@ type Course struct {
 	CourseId  string `gorm:"primaryKey;autoIncrement"`
 	Name      string
 	Cap       int
-	TeacherId string
+	TeacherId *string
 	DeletedAt gorm.DeletedAt
 }
 

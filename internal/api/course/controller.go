@@ -47,6 +47,7 @@ func CreateCourse(c *gin.Context) {
 	var createCourseRequest global.CreateCourseRequest
 	if err := c.ShouldBindJSON(&createCourseRequest); err != nil {
 		// TODO: ParamInvalid
+		fmt.Println(err.Error())
 		createCourseResponse := global.CreateCourseResponse{
 			Code: global.ParamInvalid,
 		}
@@ -70,7 +71,7 @@ func CreateCourse(c *gin.Context) {
 
 func GetCourse(c *gin.Context) {
 	var getCourseRequest global.GetCourseRequest
-	if err := c.ShouldBindJSON(&getCourseRequest); err != nil {
+	if err := c.ShouldBindQuery(&getCourseRequest); err != nil {
 		// TODO: ParamInvalid
 		fmt.Println(err.Error())
 		getCourseResponse := global.GetCourseResponse{
@@ -80,6 +81,7 @@ func GetCourse(c *gin.Context) {
 		return
 	}
 	var course mydb.Course
+	course.TeacherId = new(string)
 	global.MysqlClient.Model(&course).Where("course_id = ?", getCourseRequest.CourseID).First(&course)
 	getCourseResponse := global.GetCourseResponse{
 		Code: global.OK,
@@ -87,7 +89,10 @@ func GetCourse(c *gin.Context) {
 			CourseID  string
 			Name      string
 			TeacherID string
-		}{CourseID: course.CourseId, Name: course.Name, TeacherID: course.TeacherId},
+		}{CourseID: course.CourseId, Name: course.Name},
+	}
+	if course.TeacherId != nil {
+		getCourseResponse.Data.TeacherID = *course.TeacherId
 	}
 	c.JSON(200, getCourseResponse)
 	return

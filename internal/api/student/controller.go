@@ -121,7 +121,7 @@ func QueryCourse(c *gin.Context) {
 	for i := 0; i < len(coursesInfo); i++ {
 		res.Data.CourseList[i].Name = coursesInfo[i].Name
 		res.Data.CourseList[i].CourseID = coursesInfo[i].CourseId
-		res.Data.CourseList[i].TeacherID = coursesInfo[i].TeacherId
+		res.Data.CourseList[i].TeacherID = *coursesInfo[i].TeacherId
 	}
 	res.Code = global.OK
 	c.JSON(200, &res)

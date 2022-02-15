@@ -174,8 +174,8 @@ type WhoAmIResponse struct {
 // 创建课程
 // Method: Post
 type CreateCourseRequest struct {
-	Name string `binding:"required,IsUpperOrLowerOrDigitValidator"`
-	Cap  int    `binding:"required,IsDigitValidator"`
+	Name string `binding:"required"`
+	Cap  int    `binding:"required"`
 }
 
 type CreateCourseResponse struct {
