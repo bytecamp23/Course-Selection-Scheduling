@@ -4,18 +4,17 @@ import (
 	"Course-Selection-Scheduling/internal/global"
 	"github.com/go-playground/validator/v10"
 	"regexp"
+	"unicode"
 )
 
-var isUpperOrLowerCase = "^[a-zA-Z]+$"
-var isUpperOrLowerOrDigit = "^[a-zA-Z0-9]+$"
+var isUpperOrLowerCase = "^[a-zA-Z]{8,20}$"
+
+//var isUpperAndLowerAndDigit = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,20}$"
 var isDigit = "^[0-9]+$"
 var isUserType = "^[123]$"
 
 func UserNameValidator(fl validator.FieldLevel) bool {
 	username := fl.Field().Interface().(string)
-	if len(username) < 8 || len(username) > 20 {
-		return false
-	}
 	if ret, _ := regexp.MatchString(isUpperOrLowerCase, username); !ret {
 		return false
 	}
@@ -23,11 +22,28 @@ func UserNameValidator(fl validator.FieldLevel) bool {
 }
 
 func PasswordValidator(fl validator.FieldLevel) bool {
+	var (
+		isUpper  = false
+		isLower  = false
+		isNumber = false
+	)
 	password := fl.Field().Interface().(string)
-	if len(password) < 8 || len(password) > 20 {
+	length := len(password)
+	if length < 8 || length > 20 {
 		return false
 	}
-	if ret, _ := regexp.MatchString(isUpperOrLowerOrDigit, password); !ret {
+	for _, s := range password {
+		switch {
+		case unicode.IsUpper(s):
+			isUpper = true
+		case unicode.IsLower(s):
+			isLower = true
+		case unicode.IsNumber(s):
+			isNumber = true
+		default:
+		}
+	}
+	if !isUpper || !isLower || !isNumber {
 		return false
 	}
 	return true
