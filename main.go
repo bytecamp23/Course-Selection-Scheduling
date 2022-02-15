@@ -25,7 +25,6 @@ func main() {
 	global.RedisClient = myredis.NewRedisClient(&config.RedisCfg)
 
 	rmq := rabbitmq.NewRabbitMQSimple("bookcourse") //打开rmq消费者
-	go server.Run()
-	rmq.ConsumeSimple()
-
+	go rmq.ConsumeSimple()
+	server.Run()
 }

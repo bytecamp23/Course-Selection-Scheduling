@@ -11,18 +11,18 @@ import (
 )
 
 //验证用户名与密码
-func signUsername(username string, password string) global.ErrNo {
-	db := mydb.NewMysqlConn(&config.MysqlCfg)
+func signUsername(username string, password string) (string, global.ErrNo) {
+	db := global.MysqlClient
 	var user mydb.User
 	db.Unscoped().Where("username = ?", username).First(&user)
 	if user.DeletedAt.Valid {
-		return global.UserHasDeleted
+		return "", global.UserHasDeleted
 	} else if user.Username != username {
-		return global.UserNotExisted
+		return "", global.UserNotExisted
 	} else if user.Password != password {
-		return global.WrongPassword
+		return "", global.WrongPassword
 	} else {
-		return global.OK
+		return user.UserId, global.OK
 	}
 }
 
@@ -33,13 +33,13 @@ func Login(c *gin.Context) {
 	err := c.ShouldBindJSON(&json)
 	if err != nil {
 		res.Code = global.ParamInvalid
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 		return
 	}
 	//print(json.Username, json.Password)
-	res.Code = signUsername(json.Username, json.Password)
+	res.Data.UserID, res.Code = signUsername(json.Username, json.Password)
 	if res.Code != global.OK {
-		c.JSON(401, &res)
+		c.JSON(200, &res)
 		return
 	}
 	u1, _ := uuid.NewUUID()
@@ -53,5 +53,5 @@ func Login(c *gin.Context) {
 	rdb := global.RedisClient.Get()
 	rdb.Do("SET", u1.String(), json.Username)
 	rdb.Do("EXPIRE", u1.String(), 60*60)
-	c.JSON(401, &res)
+	c.JSON(200, &res)
 }
