@@ -19,7 +19,8 @@ func registerRouter(r *gin.Engine) {
 		_ = v.RegisterValidation("UserNameValidator", utils.UserNameValidator)
 		_ = v.RegisterValidation("PasswordValidator", utils.PasswordValidator)
 		_ = v.RegisterValidation("UserTypeValidator", utils.UserTypeValidator)
-		_ = v.RegisterValidation("UserIDValidator", utils.UserIDValidator)
+		_ = v.RegisterValidation("IsDigitValidator", utils.IsDigitValidator)
+		_ = v.RegisterValidation("IsUpperOrLowerOrDigitValidator", utils.IsUpperOrLowerOrDigitValidator)
 	}
 
 	// 成员管理

@@ -82,7 +82,7 @@ type CreateMemberResponse struct {
 // 获取成员信息
 
 type GetMemberRequest struct {
-	UserID string `json:"UserID" binding:"required,UserIDValidator"`
+	UserID string `json:"UserID" binding:"required,IsDigitValidator"`
 }
 
 // 如果用户已删除请返回已删除状态码，不存在请返回不存在状态码
@@ -109,7 +109,7 @@ type GetMemberListResponse struct {
 // 更新成员信息
 
 type UpdateMemberRequest struct {
-	UserID   string `json:"UserID" binding:"required,UserIDValidator"`
+	UserID   string `json:"UserID" binding:"required,IsDigitValidator"`
 	Nickname string `json:"Nickname" binding:"required" validate:"min=4,max=20"`
 }
 
@@ -121,7 +121,7 @@ type UpdateMemberResponse struct {
 // 成员删除后，该成员不能够被登录且不应该不可见，ID 不可复用
 
 type DeleteMemberRequest struct {
-	UserID string `json:"UserID" binding:"required,UserIDValidator"`
+	UserID string `json:"UserID" binding:"required,IsDigitValidator"`
 }
 
 type DeleteMemberResponse struct {
@@ -174,8 +174,8 @@ type WhoAmIResponse struct {
 // 创建课程
 // Method: Post
 type CreateCourseRequest struct {
-	Name string `json:"Name"`
-	Cap  int    `json:"Cap"`
+	Name string `json:"Name" binding:"required,IsUpperOrLowerOrDigitValidator"`
+	Cap  int    `json:"Cap"  binding:"required,IsDigitValidator"`
 }
 
 type CreateCourseResponse struct {
@@ -188,7 +188,7 @@ type CreateCourseResponse struct {
 // 获取课程
 // Method: Get
 type GetCourseRequest struct {
-	CourseID string `json:"CourseID"`
+	CourseID string `json:"CourseID" binding:"required,IsDigitValidator"`
 }
 
 type GetCourseResponse struct {
@@ -202,8 +202,8 @@ type GetCourseResponse struct {
 // 一个老师可以绑定多个课程 , 不过，一个课程只能绑定在一个老师下面
 
 type BindCourseRequest struct {
-	CourseID  string `json:"CourseID"`
-	TeacherID string `json:"TeacherID"`
+	CourseID  string `json:"CourseID" binding:"required,IsDigitValidator"`
+	TeacherID string `json:"TeacherID" binding:"required,IsDigitValidator"`
 }
 
 type BindCourseResponse struct {
@@ -213,8 +213,8 @@ type BindCourseResponse struct {
 // 老师解绑课程
 // Method： Post
 type UnbindCourseRequest struct {
-	CourseID  string `json:"CourseID"`
-	TeacherID string `json:"TeacherID"`
+	CourseID  string `json:"CourseID" binding:"required,IsDigitValidator"`
+	TeacherID string `json:"TeacherID" binding:"required,IsDigitValidator"`
 }
 
 type UnbindCourseResponse struct {
@@ -224,7 +224,7 @@ type UnbindCourseResponse struct {
 // 获取老师下所有课程
 // Method：Get
 type GetTeacherCourseRequest struct {
-	TeacherID string `json:"TeacherID"`
+	TeacherID string `json:"TeacherID" binding:"required,IsDigitValidator"`
 }
 
 type GetTeacherCourseResponse struct {
