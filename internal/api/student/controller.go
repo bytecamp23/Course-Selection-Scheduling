@@ -46,6 +46,23 @@ func BookCourse(c *gin.Context) {
 	freqentSC := "frequent_" + SC
 	successSC := "success_" + SC
 
+	//限制重复抢课
+	value, err = myredis.GetFromRedis(successSC)
+	if err != nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.UnknownError},
+		)
+		return
+	}
+	if value != nil {
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.StudentHasCourse},
+		)
+		return
+	}
+
 	//限制抢课频率
 	value, err = myredis.GetFromRedis(freqentSC)
 	if err != nil {
@@ -63,23 +80,6 @@ func BookCourse(c *gin.Context) {
 		return
 	} else {
 		myredis.PutToRedis(freqentSC, "true", 3) //3秒内只能抢一次
-	}
-
-	//限制重复抢课
-	value, err = myredis.GetFromRedis(successSC)
-	if err != nil {
-		c.JSON(
-			http.StatusOK,
-			global.BookCourseResponse{Code: global.UnknownError},
-		)
-		return
-	}
-	if value != nil {
-		c.JSON(
-			http.StatusOK,
-			global.BookCourseResponse{Code: global.RepeatRequest},
-		)
-		return
 	}
 
 	//查询课程余量并减库存 , 数据库操作送入消息队列中
@@ -121,7 +121,7 @@ func BookCourse(c *gin.Context) {
 // 根据学生信息查询课程列表
 func QueryCourse(c *gin.Context) {
 	var json global.GetStudentCourseRequest
-	if err := c.ShouldBindJSON(&json); err != nil {
+	if err := c.ShouldBindQuery(&json); err != nil {
 		// TODO: ParamInvalid
 		getStudentCourseResponse := global.GetStudentCourseResponse{
 			Code: global.ParamInvalid,
@@ -138,17 +138,26 @@ func QueryCourse(c *gin.Context) {
 		)
 		return
 	}
-
-	var coursesInfo []mydb.Course
-	var res global.GetStudentCourseResponse
 	db := global.MysqlClient
-	db.Model(&mydb.Course{}).Where("student_id = ?", json.StudentID).Find(&coursesInfo)
-	res.Data.CourseList = make([]global.TCourse, len(coursesInfo))
-	for i := 0; i < len(coursesInfo); i++ {
-		res.Data.CourseList[i].Name = coursesInfo[i].Name
-		res.Data.CourseList[i].CourseID = coursesInfo[i].CourseId
-		res.Data.CourseList[i].TeacherID = *coursesInfo[i].TeacherId
+	var selectCourses []mydb.SelectCourse
+	db.Model(&mydb.SelectCourse{}).Where("student_id = ?", json.StudentID).Find(&selectCourses)
+
+	var res global.GetStudentCourseResponse
+	res.Data.CourseList = make([]global.TCourse, len(selectCourses))
+	for i, selectCourse := range selectCourses {
+		var courseInfo mydb.Course
+		db.Model(&mydb.Course{}).Where("course_id = ?", selectCourse.CourseId).Find(&courseInfo)
+		fmt.Println(selectCourse.CourseId)
+		res.Data.CourseList[i].CourseID = courseInfo.CourseId
+		res.Data.CourseList[i].Name = courseInfo.Name
+		if courseInfo.TeacherId != nil {
+			res.Data.CourseList[i].TeacherID = *courseInfo.TeacherId
+		}
 	}
-	res.Code = global.OK
+	if len(res.Data.CourseList) == 0 {
+		res.Code = global.StudentHasNoCourse
+	} else {
+		res.Code = global.OK
+	}
 	c.JSON(200, &res)
 }
