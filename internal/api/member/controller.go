@@ -5,6 +5,7 @@ import (
 	"Course-Selection-Scheduling/pkg/config"
 	"Course-Selection-Scheduling/pkg/mydb"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
 )
@@ -149,6 +150,29 @@ func ListMember(c *gin.Context) {
 		res.Data.MemberList[i].UserID = users[i].UserId
 		res.Data.MemberList[i].Username = users[i].Username
 	}
+	res.Code = global.OK
+	c.JSON(200, &res)
+}
+
+// 获取单个成员
+func GetMember(c *gin.Context){
+	var json global.GetMemberRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		// TODO: ParamInvalid
+		getMemberResponse := global.GetMemberResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, getMemberResponse)
+		return
+	}
+	var user mydb.User
+	var res global.GetMemberResponse
+	db := mydb.NewMysqlConn(&config.MysqlCfg)
+	db.Model(&mydb.User{}).Where("user_id = ?", json.UserID).First(&user)
+	res.Data.UserType = user.UserType
+	res.Data.Nickname = user.Nickname
+	res.Data.UserID = user.UserId
+	res.Data.Username = user.Username
 	res.Code = global.OK
 	c.JSON(200, &res)
 }
