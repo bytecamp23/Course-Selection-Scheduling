@@ -28,7 +28,10 @@ func BookCourse(c *gin.Context) {
 	//限制抢课频率
 	value, err := myredis.GetFromRedis(freqentSC)
 	if err != nil {
-		log.Println(err.Error())
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.UnknownError},
+		)
 		return
 	}
 	if value != nil {
@@ -38,13 +41,16 @@ func BookCourse(c *gin.Context) {
 		)
 		return
 	} else {
-		myredis.PutToRedis(freqentSC, "true", 5) //5秒内只能抢一次
+		myredis.PutToRedis(freqentSC, "true", 3) //3秒内只能抢一次
 	}
 
 	//限制重复抢课
 	value, err = myredis.GetFromRedis(successSC)
 	if err != nil {
-		log.Println(err.Error())
+		c.JSON(
+			http.StatusOK,
+			global.BookCourseResponse{Code: global.UnknownError},
+		)
 		return
 	}
 	if value != nil {
@@ -53,8 +59,6 @@ func BookCourse(c *gin.Context) {
 			global.BookCourseResponse{Code: global.RepeatRequest},
 		)
 		return
-	} else {
-		myredis.PutToRedis(successSC, "true", -1)
 	}
 
 	//查询课程余量并减库存 , 数据库操作送入消息队列中
@@ -67,12 +71,15 @@ func BookCourse(c *gin.Context) {
 		return
 	}
 	if value.(int64) < 0 {
+		myredis.IncrForRedis(requestData.CourseID) //加回来
 		c.JSON(
 			http.StatusOK,
 			global.BookCourseResponse{Code: global.CourseNotAvailable},
 		)
 		return
 	}
+	//减库存成功后 标记为抢课成功
+	myredis.PutToRedis(successSC, "true", -1)
 
 	//放到消息队列中,进行数据库操作
 	msgByte, err := json.Marshal(requestData)
@@ -80,6 +87,7 @@ func BookCourse(c *gin.Context) {
 		log.Fatalln(err)
 	}
 	rmq := rabbitmq.NewRabbitMQSimple("bookcourse")
+
 	rmq.PublishSimple(msgByte)
 
 	//回传OK

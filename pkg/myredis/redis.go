@@ -91,3 +91,10 @@ func DecrForRedis(key string) (interface{}, error) {
 	value, err := rc.Do("DECR", key)
 	return value, err
 }
+
+func IncrForRedis(key string) (interface{}, error) {
+	rc := global.RedisClient.Get()
+	defer rc.Close()
+	value, err := rc.Do("INCR", key)
+	return value, err
+}

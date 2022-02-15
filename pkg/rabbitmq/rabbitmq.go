@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -127,8 +128,9 @@ func Consume(msgByte []byte) {
 	}
 	//扣减课程余量
 	global.MysqlClient.AutoMigrate(&mydb.Course{}) //迁移表到Course
-	var course mydb.Course
-	global.MysqlClient.Model(&course).Update("CourseId", course.Cap-1)
+	global.MysqlClient.Model(&mydb.Course{}).
+		Where("course_id = ?", msg.CourseID).
+		Update("cap", gorm.Expr("cap- ?", 1))
 	//插入课表
 	global.MysqlClient.AutoMigrate(&mydb.SelectCourse{}) //迁移表到SelectCourse
 	global.MysqlClient.Create(&mydb.SelectCourse{StudentId: msg.StudentID, CourseId: msg.CourseID})
