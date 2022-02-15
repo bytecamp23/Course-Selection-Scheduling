@@ -82,7 +82,13 @@ func GetCourse(c *gin.Context) {
 	}
 	var course mydb.Course
 	course.TeacherId = new(string)
-	global.MysqlClient.Model(&course).Where("course_id = ?", getCourseRequest.CourseID).First(&course)
+	err := global.MysqlClient.Model(&course).Where("course_id = ?", getCourseRequest.CourseID).First(&course)
+	if err != nil {
+		c.JSON(200, global.GetCourseResponse{
+			Code: global.CourseNotExisted,
+		})
+		return
+	}
 	getCourseResponse := global.GetCourseResponse{
 		Code: global.OK,
 		Data: struct {
