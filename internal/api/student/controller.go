@@ -2,13 +2,16 @@ package student
 
 import (
 	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/pkg/config"
+	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/pkg/myredis"
 	"Course-Selection-Scheduling/pkg/rabbitmq"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func BookCourse(c *gin.Context) {
@@ -95,4 +98,31 @@ func BookCourse(c *gin.Context) {
 		http.StatusOK,
 		global.BookCourseResponse{Code: global.OK},
 	)
+}
+
+// 根据学生信息查询课程列表
+func QueryCourse(c *gin.Context) {
+	var json global.GetStudentCourseRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		// TODO: ParamInvalid
+		getStudentCourseResponse := global.GetStudentCourseResponse{
+			Code: global.ParamInvalid,
+		}
+		c.JSON(200, getStudentCourseResponse)
+		return
+	}
+
+	var coursesInfo []mydb.Course
+	var res global.GetStudentCourseResponse
+	db := mydb.NewMysqlConn(&config.MysqlCfg)
+	db.Model(&mydb.Course{}).Where("student_id = ?", json.StudentID).Find(&coursesInfo)
+
+	res.Data.CourseList = make([]global.TCourse, len(coursesInfo))
+	for i := 0; i < len(coursesInfo); i++ {
+		res.Data.CourseList[i].Name = coursesInfo[i].Name
+		res.Data.CourseList[i].CourseID = coursesInfo[i].CourseId
+		res.Data.CourseList[i].TeacherID = coursesInfo[i].TeacherId
+	}
+	res.Code = global.OK
+	c.JSON(200, &res)
 }
