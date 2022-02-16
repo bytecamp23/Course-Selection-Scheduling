@@ -53,53 +53,67 @@
 
 ### 目录结构
 
+参照MVC架构
+
 ```
 .
-└── config //配置目录
-│   └── dev //具体环境
-│       ├── log.yml //日志配置
-│       ├── mysql.yml //mysql配置
-│       ├── redis.yml //redis配置
-│       ├── server.yml //httpserver配置
-│       └── session.yml //session配置
+├── api//存放业务代码
+│   ├── controllers//控制器
+│   │   ├── auth
+│   │   │   └── auth.go
+│   │   ├── course
+│   │   │   └── course.go
+│   │   ├── member
+│   │   │   └── member.go
+│   │   ├── student
+│   │   │   └── student.go
+│   │   └── teacher
+│   │       └── teacher.go
+│   └── models//数据模型
+│       ├── auth
+│       │   └── auth.go
+│       ├── course
+│       │   ├── course.go
+│       │   └── matchSolve.go
+│       ├── member
+│       │   └── member.go
+│       ├── student
+│       │   └── student.go
+│       └── teacher
+│           └── teacher.go
+├── config//存放配置文件
+│   └── dev
+│       ├── log.yml
+│       ├── mysql.yml
+│       ├── rabbitMQ.yml
+│       ├── redis.yml
+│       ├── server.yml
+│       └── session.yml
 ├── go.mod
 ├── go.sum
-├── internal //内部目录
-│   ├── api //api目录 根据大作业介绍-接口设计 controller + model
-│   │   ├── auth
-│   │   │   ├── controller.go
-│   │   │   └── model.go
-│   │   ├── course
-│   │   │   ├── controller.go
-│   │   │   └── model.go
-│   │   ├── member
-│   │   │   ├── controller.go
-│   │   │   └── model.go
-│   │   ├── student
-│   │   │   ├── controller.go
-│   │   │   └── model.go
-│   │   └── teacher
-│   │       ├── controller.go
-│   │       └── model.go
-│   ├── global// 全局目录
-│   │   ├── global.go
-│   │   └── types.go 
-│   └── server// httpserver目录
+├── logs//存放日志文件
+│   └── dev
+├── main.go
+├── pkg//存放底层代码
+│   ├── logger
+│   │   └── logger.go
+│   ├── mydb
+│   │   └── mysql.go
+│   ├── myredis
+│   │   └── redis.go
+│   ├── rabbitmq
+│   │   └── rabbitmq.go
+│   └── server
 │       ├── router.go
 │       └── server.go
-├── logs //日志目录
-│   └── dev //具体环境
-├── main.go 
-├── pkg //外部包目录
-│   ├── config //配置文件定义目录
-│   │   └── config.go
-│   ├── mydb //mysql定义目录
-│   │   └── mysql.go
-│   └── myredis //redis定义目录
-│       └── redis.go
 ├── readme.md
-└── utils //工具目录
-    └── loadCfg.go //加载配置文件
+├── types//一些定义
+│   └── types.go
+└── utils//存放工具
+    ├── loadConfig.go
+    ├── md5.go
+    ├── min.go
+    └── validator.go
 ```
 
 ### 数据库设计
@@ -193,7 +207,7 @@ CREATE TABLE `select_courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `users` (`nickname`, `username`, `password`, `user_type`) 
-VALUES ('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022', 1); #默认管理员账号 做示例 实际不存明文
+VALUES ('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022', 1); 
 ```
 
 ### 排课求解器实现
@@ -275,6 +289,8 @@ CourseNotExisted
 
 * schedule
 
+ParamInvalid
+
 UnknownError
 
 * bind
@@ -298,4 +314,40 @@ CourseNotBound
 CourseNotExisted
 
 #### 选课模块
+
+* book_course
+
+ParamInvalid
+
+CourseNotAvailable
+
+StudentNotExisted
+
+CourseNotExisted
+
+StudentHasCourse
+
+RepeatRequest
+
+UnknownError
+
+* get
+
+ParamInvalid
+
+StudentNotExisted
+
+StudentHasNoCourse
+
+### 抢课模块实现
+
+#### 抢课
+
+核心流程：
+
+![2A1622099B733158E5B1885336852F83](/Users/lmessi/OneDrive/Project/Course-Selection-Scheduling/assets/2A1622099B733158E5B1885336852F83.jpg)
+
+判断非法课程号和学生号：redis辅助实现
+
+查课表：redis辅助实现
 
