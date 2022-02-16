@@ -5,6 +5,7 @@ import (
 	"Course-Selection-Scheduling/types"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func BookCourse(c *gin.Context) {
@@ -15,11 +16,13 @@ func BookCourse(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.CheckValid()
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 
@@ -30,11 +33,13 @@ func BookCourse(c *gin.Context) {
 	respondData.Code = requestData.CheckRestriction(success, frequency)
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 
 	respondData.Code = requestData.LockCourse(success)
 	c.JSON(200, respondData)
+	log.Println(respondData)
 }
 
 // 根据学生信息查询课程列表
@@ -46,6 +51,7 @@ func QueryCourse(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 
@@ -53,6 +59,7 @@ func QueryCourse(c *gin.Context) {
 	respondData.Code = requestData.CheckStudent()
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	//限制频率
@@ -60,9 +67,11 @@ func QueryCourse(c *gin.Context) {
 	respondData.Code = requestData.CheckRestriction(frequency)
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 
 	respondData.Data.CourseList, respondData.Code = requestData.GetCourses()
 	c.JSON(200, &respondData)
+	log.Println(respondData)
 }

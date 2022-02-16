@@ -5,6 +5,7 @@ import (
 	"Course-Selection-Scheduling/pkg/mydb"
 	"Course-Selection-Scheduling/types"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 //创建成员
@@ -16,15 +17,18 @@ func CreateMember(c *gin.Context) {
 	respondData.Code = requestData.CheckAdmin(c)
 	if respondData.Code != types.OK {
 		c.JSON(200, &respondData)
+		log.Println(respondData)
 		return
 	}
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	respondData.Data.UserID, respondData.Code = requestData.CreateUser()
 	c.JSON(200, respondData)
+	log.Println(respondData)
 }
 
 //获取成员信息
@@ -36,6 +40,7 @@ func GetMember(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	var user mydb.User
@@ -45,6 +50,7 @@ func GetMember(c *gin.Context) {
 	respondData.Data.UserType = user.UserType
 	respondData.Data.Username = user.Username
 	c.JSON(200, &respondData)
+	log.Println(respondData)
 }
 
 //更新成员
@@ -56,10 +62,12 @@ func UpdateMember(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.Update()
 	c.JSON(200, &respondData)
+	log.Println(respondData)
 }
 
 //删除成员
@@ -71,10 +79,12 @@ func DeleteMember(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.Delete()
 	c.JSON(200, &respondData)
+	log.Println(respondData)
 }
 
 //批量获取成员
@@ -86,6 +96,7 @@ func ListMember(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(respondData)
 		return
 	}
 
@@ -99,4 +110,5 @@ func ListMember(c *gin.Context) {
 		respondData.Data.MemberList[i].Username = users[i].Username
 	}
 	c.JSON(200, &respondData)
+	log.Println(respondData)
 }
