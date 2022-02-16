@@ -275,6 +275,8 @@ CourseNotExisted
 
 * schedule
 
+UnknownError
+
 * bind
 
 ParamInvalid

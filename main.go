@@ -21,6 +21,7 @@ func main() {
 	flag.Parse() //获取命令行参数 根据参数选择配置文件 默认dev
 	utils.LoadCfg(*env)
 	mydb.MysqlClient = mydb.NewMysqlConn(&utils.MysqlCfg)
+	mydb.CreateTables()
 	myredis.RedisClient = myredis.NewRedisClient(&utils.RedisCfg)
 	rabbitmq.RMQClient = rabbitmq.NewRabbitMQSimple(types.RMQName) //打开rmq消费者
 	go rabbitmq.RMQClient.ConsumeSimple(student.Consume)
