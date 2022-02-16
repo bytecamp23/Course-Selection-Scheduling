@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"Course-Selection-Scheduling/internal/global"
+	"Course-Selection-Scheduling/types"
 	"github.com/go-playground/validator/v10"
 	"regexp"
 	"unicode"
@@ -50,8 +50,8 @@ func PasswordValidator(fl validator.FieldLevel) bool {
 }
 
 func UserTypeValidator(fl validator.FieldLevel) bool {
-	userType := fl.Field().Interface().(global.UserType)
-	if userType != global.Admin && userType != global.Student && userType != global.Teacher {
+	userType := fl.Field().Interface().(types.UserType)
+	if userType != types.Admin && userType != types.Student && userType != types.Teacher {
 		return false
 	}
 	return true

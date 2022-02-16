@@ -1,16 +1,13 @@
 package rabbitmq
 
 import (
-	"Course-Selection-Scheduling/internal/global"
-	"Course-Selection-Scheduling/pkg/mydb"
-	"encoding/json"
+	"Course-Selection-Scheduling/utils"
 	"fmt"
 	"github.com/streadway/amqp"
-	"gorm.io/gorm"
 	"log"
 )
 
-const MQURL = "amqp://guest:guest@localhost:5672/"
+var RMQClient *RabbitMQ
 
 type RabbitMQ struct {
 	coon      *amqp.Connection
@@ -26,7 +23,13 @@ func NewRabbitMQ(quequName string, exchange string, key string) *RabbitMQ {
 		QueueName: quequName,
 		Exchange:  exchange,
 		key:       key,
-		Mqurl:     MQURL,
+		Mqurl: fmt.Sprintf(
+			"amqp://%s:%s@%s:%s/",
+			utils.RMQCfg.Username,
+			utils.RMQCfg.Password,
+			utils.RMQCfg.Host,
+			utils.RMQCfg.Port,
+		),
 	}
 	return rabbitmq
 }
@@ -46,13 +49,11 @@ func (r *RabbitMQ) failOnErr(err error, message string) {
 // NewRabbitMQSimple 创建简单模式下RabbitMQ实例
 func NewRabbitMQSimple(queueName string) *RabbitMQ {
 	rabbitmq := NewRabbitMQ(queueName, "", "") //use default exchange, key->nil
-
 	var err error
 	rabbitmq.coon, err = amqp.Dial(rabbitmq.Mqurl) //连接RMQ服务器
 	rabbitmq.failOnErr(err, "创建连接错误")
 	rabbitmq.channel, err = rabbitmq.coon.Channel() //创建通道,大多数API通过该通道操作
 	rabbitmq.failOnErr(err, "获取channel失败")
-
 	return rabbitmq
 }
 
@@ -81,7 +82,7 @@ func (r *RabbitMQ) PublishSimple(message []byte) {
 		})
 }
 
-func (r *RabbitMQ) ConsumeSimple() {
+func (r *RabbitMQ) ConsumeSimple(Consume func(msgByte []byte)) {
 	// 申请队列，固定用法，如果队列不存在会自动创建，如果存在则跳过创建
 	q, err := r.channel.QueueDeclare(
 		r.QueueName, // 队列名称
@@ -118,20 +119,4 @@ func (r *RabbitMQ) ConsumeSimple() {
 	}()
 	log.Printf("[*] Waiting for messages, To exit press CTRL+C")
 	<-forever
-}
-func Consume(msgByte []byte) {
-	//解析message
-	var msg global.BookCourseRequest
-	err := json.Unmarshal(msgByte, &msg)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	//扣减课程余量
-	global.MysqlClient.AutoMigrate(&mydb.Course{}) //迁移表到Course
-	global.MysqlClient.Model(&mydb.Course{}).
-		Where("course_id = ?", msg.CourseID).
-		Update("cap", gorm.Expr("cap- ?", 1))
-	//插入课表
-	global.MysqlClient.AutoMigrate(&mydb.SelectCourse{}) //迁移表到SelectCourse
-	global.MysqlClient.Create(&mydb.SelectCourse{StudentId: msg.StudentID, CourseId: msg.CourseID})
 }
