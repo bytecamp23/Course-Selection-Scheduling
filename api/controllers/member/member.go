@@ -17,17 +17,20 @@ func CreateMember(c *gin.Context) {
 	respondData.Code = requestData.CheckAdmin(c)
 	if respondData.Code != types.OK {
 		c.JSON(200, &respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Data.UserID, respondData.Code = requestData.CreateUser()
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -40,6 +43,7 @@ func GetMember(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -50,6 +54,7 @@ func GetMember(c *gin.Context) {
 	respondData.Data.UserType = user.UserType
 	respondData.Data.Username = user.Username
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -62,11 +67,13 @@ func UpdateMember(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.Update()
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -79,11 +86,13 @@ func DeleteMember(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.Delete()
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -96,6 +105,7 @@ func ListMember(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -110,5 +120,6 @@ func ListMember(c *gin.Context) {
 		respondData.Data.MemberList[i].Username = users[i].Username
 	}
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }

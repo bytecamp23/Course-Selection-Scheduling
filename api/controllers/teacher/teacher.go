@@ -15,6 +15,7 @@ func BindCourse(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -23,11 +24,13 @@ func BindCourse(c *gin.Context) {
 	respondData.Code = requestData.CheckBind()
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.Bind()
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 	return
 }
@@ -39,17 +42,20 @@ func UnBindCourse(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.CheckUnBind()
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Code = requestData.UnBind()
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 	return
 }
@@ -62,11 +68,13 @@ func GetTeacherCourse(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Data.CourseList, respondData.Code = requestData.GetTeacherCourses()
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 	return
 }

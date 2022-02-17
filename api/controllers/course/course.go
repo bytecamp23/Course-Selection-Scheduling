@@ -17,6 +17,7 @@ func ScheduleCourse(c *gin.Context) {
 	if err := c.BindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 	}
 	log.Println(requestData)
@@ -28,6 +29,7 @@ func ScheduleCourse(c *gin.Context) {
 		respondData.Data = requestData.Hungarian()
 	}
 	c.JSON(http.StatusOK, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -39,11 +41,13 @@ func CreateCourse(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Data.CourseID, respondData.Code = requestData.CreateCourse()
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 	return
 }
@@ -56,6 +60,7 @@ func GetCourse(c *gin.Context) {
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -70,6 +75,7 @@ func GetCourse(c *gin.Context) {
 		respondData.Data.TeacherID = *course.TeacherId
 	}
 	c.JSON(200, respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 	return
 }

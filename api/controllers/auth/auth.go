@@ -17,17 +17,20 @@ func Login(c *gin.Context) {
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, &respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	respondData.Data.UserID, respondData.Code = requestData.CheckLogin()
 	if respondData.Code != types.OK {
 		c.JSON(200, &respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
 	requestData.SetSession(c)
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -39,6 +42,7 @@ func Logout(c *gin.Context) {
 	)
 	respondData.Code = requestData.ClearSession(c)
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
 
@@ -55,6 +59,7 @@ func Whoami(c *gin.Context) {
 	username, respondData.Code = requestData.CheckSession(c)
 	if respondData.Code != types.OK {
 		c.JSON(200, &respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -62,6 +67,7 @@ func Whoami(c *gin.Context) {
 	user, respondData.Code = requestData.GetPersonInfo(username)
 	if respondData.Code != types.OK {
 		c.JSON(200, &respondData)
+		log.Println(requestData)
 		log.Println(respondData)
 		return
 	}
@@ -70,5 +76,6 @@ func Whoami(c *gin.Context) {
 	respondData.Data.Nickname = user.Nickname
 	respondData.Data.UserID = user.UserId
 	c.JSON(200, &respondData)
+	log.Println(requestData)
 	log.Println(respondData)
 }
