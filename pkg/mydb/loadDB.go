@@ -33,6 +33,6 @@ func LoadDB() {
 	for _, selectCourse := range selectCourses {
 		myredis.SAddToRedisSet(types.SelectPre+selectCourse.StudentId, selectCourse.CourseId)
 		success := fmt.Sprintf("success_%s_%s", selectCourse.StudentId, selectCourse.CourseId)
-		myredis.PutToRedis(success, 0, -1)
+		myredis.PutToRedis(success, -1, -1)
 	}
 }

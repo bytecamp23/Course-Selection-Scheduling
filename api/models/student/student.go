@@ -51,12 +51,14 @@ func (bookCourseInfo BookCourseRequest) CheckValid() (errno types.ErrNo) {
 //限制重复抢课和抢课频度
 func (bookCourseInfo BookCourseRequest) CheckRestriction(success, frequency string) (errno types.ErrNo) {
 	//限制重复抢课
-	value, _ := myredis.Exsits(success)
-	if value == true {
+	cnt, _ := redis.Int(myredis.DecrForRedis(success))
+	//0-1=-1为初次抢课
+	if cnt < (-1) {
+		myredis.IncrForRedis(success)
 		return types.StudentHasCourse
 	}
 	//限制抢课频率
-	value, _ = myredis.Exsits(frequency)
+	value, _ := myredis.Exsits(frequency)
 	if value == true {
 		return types.RepeatRequest
 	} else {
@@ -67,16 +69,15 @@ func (bookCourseInfo BookCourseRequest) CheckRestriction(success, frequency stri
 
 //锁定课程
 func (bookCourseInfo BookCourseRequest) LockCourse(success string) (errno types.ErrNo) {
-	myredis.PutToRedis(success, "true", -1) //提前锁定
 	//查询课程余量并减库存 , 数据库操作送入消息队列中
 	value, err := myredis.DecrForRedis(types.CoursePre + bookCourseInfo.CourseID)
 	if err != nil {
-		myredis.DeleteFromRedis(success) //锁定失败
+		myredis.IncrForRedis(success) //锁定失败
 		return types.UnknownError
 	}
 	if value.(int64) < 0 {
 		myredis.IncrForRedis(types.CoursePre + bookCourseInfo.CourseID) //加回来
-		myredis.DeleteFromRedis(success)                                //锁定失败
+		myredis.IncrForRedis(success)                                   //锁定失败
 		return types.CourseNotAvailable
 	}
 	myredis.SAddToRedisSet(types.SelectPre+bookCourseInfo.StudentID, bookCourseInfo.CourseID)
