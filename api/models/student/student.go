@@ -49,8 +49,8 @@ func (bookCourseInfo BookCourseRequest) CheckValid() (errno types.ErrNo) {
 	return types.OK
 }
 
-//限制重复抢课和抢课频度
-func (bookCourseInfo BookCourseRequest) CheckRestriction(success, frequency string) (errno types.ErrNo) {
+//限制抢课频度
+func (bookCourseInfo BookCourseRequest) CheckFrequency(frequency string) (errno types.ErrNo) {
 	//限制抢课频率
 	value, _ := myredis.Exsits(frequency)
 	if value == true {
@@ -58,6 +58,11 @@ func (bookCourseInfo BookCourseRequest) CheckRestriction(success, frequency stri
 	} else {
 		myredis.PutToRedis(frequency, "true", 3) //3秒内只能抢一次
 	}
+	return types.OK
+}
+
+//限制重复抢课
+func (bookCourseInfo BookCourseRequest) CheckSuccess(success string) (errno types.ErrNo) {
 	//限制重复抢课
 	cnt, _ := redis.Int(myredis.DecrForRedis(success))
 	//0-1=-1为初次抢课
@@ -102,7 +107,7 @@ func (studentCourseInfo GetStudentCourseRequest) CheckStudent() (errno types.Err
 }
 
 //限制频度
-func (bookCourseInfo GetStudentCourseRequest) CheckRestriction(frequency string) (errno types.ErrNo) {
+func (bookCourseInfo GetStudentCourseRequest) CheckFrequency(frequency string) (errno types.ErrNo) {
 	//限制频率
 	value, _ := myredis.Exsits(frequency)
 	if value == true {
