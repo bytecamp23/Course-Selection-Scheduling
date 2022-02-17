@@ -102,6 +102,7 @@ func ListMember(c *gin.Context) {
 		requestData member.GetMemberListRequest
 		respondData member.GetMemberListResponse
 	)
+	respondData.Data.MemberList = []member.TMember{}
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)

@@ -60,6 +60,7 @@ func QueryCourse(c *gin.Context) {
 		requestData student.GetStudentCourseRequest
 		respondData student.GetStudentCourseResponse
 	)
+	respondData.Data.CourseList = []types.TCourse{}
 	if err := c.ShouldBindQuery(&requestData); err != nil {
 		respondData.Code = types.ParamInvalid
 		c.JSON(200, respondData)
