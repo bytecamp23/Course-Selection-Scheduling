@@ -4,10 +4,10 @@ const (
 	CampSession   string = "camp-session"
 	ChooseFactor  int    = 10000000
 	SelectPre     string = "sel_"
-	StudentPre    string = "student_"
-	CoursePre     string = "course_"
-	CourseNamePre string = "course_name_"
-	TeacherIDPre  string = "teacher_id_"
+	StudentPre    string = "stu_"
+	CoursePre     string = "cour_"
+	CourseNamePre string = "cour_name_"
+	TeacherIDPre  string = "tea_id_"
 	RMQName       string = "bookcourse"
 )
 

@@ -90,3 +90,10 @@ func SGetAllFromRedis(key string) ([]string, error) {
 	defer rc.Close()
 	return redis.Strings(rc.Do("SMEMBERS", key))
 }
+
+func Flushdb() error {
+	rc := RedisClient.Get()
+	defer rc.Close()
+	_, err := rc.Do("flushdb")
+	return err
+}

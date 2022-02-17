@@ -41,7 +41,7 @@ func (bookCourseInfo BookCourseRequest) CheckValid() (errno types.ErrNo) {
 		return types.CourseNotExisted
 	}
 	//学生不存在
-	value, _ = myredis.Exsits("student_" + bookCourseInfo.StudentID)
+	value, _ = myredis.Exsits(types.StudentPre + bookCourseInfo.StudentID)
 	if value == false {
 		return types.StudentNotExisted
 	}
@@ -92,7 +92,7 @@ func (bookCourseInfo BookCourseRequest) LockCourse(success string) (errno types.
 //检查课程学生合法性
 func (studentCourseInfo GetStudentCourseRequest) CheckStudent() (errno types.ErrNo) {
 	//学生不存在
-	value, _ := myredis.Exsits("select_" + studentCourseInfo.StudentID)
+	value, _ := myredis.Exsits(types.SelectPre + studentCourseInfo.StudentID)
 	if value == false {
 		return types.StudentNotExisted
 	}
@@ -113,7 +113,7 @@ func (bookCourseInfo GetStudentCourseRequest) CheckRestriction(frequency string)
 
 //得到课程表
 func (studentCourseInfo GetStudentCourseRequest) GetCourses() (CourseList []types.TCourse, errno types.ErrNo) {
-	courseIDs, _ := myredis.SGetAllFromRedis("select_" + studentCourseInfo.StudentID)
+	courseIDs, _ := myredis.SGetAllFromRedis(types.SelectPre + studentCourseInfo.StudentID)
 	log.Println(courseIDs)
 	CourseList = make([]types.TCourse, len(courseIDs))
 	if len(CourseList) == 0 {
