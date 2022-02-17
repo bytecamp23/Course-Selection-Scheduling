@@ -72,7 +72,7 @@ func (loginInfo LoginRequest) SetSession(c *gin.Context) (errno types.ErrNo) {
 		Value: u1.String(),
 		Path:  "/api/v1",
 	})
-	myredis.PutToRedis(u1.String(), loginInfo.Username, 60*60)
+	myredis.PutToRedis(u1.String(), loginInfo.Username, 60*60*24)
 	return types.OK
 }
 

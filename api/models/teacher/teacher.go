@@ -78,10 +78,11 @@ func (unbindCourseInfo UnbindCourseRequest) CheckUnBind() (errno types.ErrNo) {
 		return types.CourseNotExisted
 	}
 	//课程未绑定
-	err = mydb.MysqlClient.Model(&mydb.BindCourse{}).
+	err = mydb.MysqlClient.
+		Model(&mydb.BindCourse{}).
 		Where("course_id = ? AND teacher_id = ?", unbindCourse.CourseId, unbindCourse.TeacherId).
 		First(&unbindCourse)
-	if err.Error != nil {
+	if err.Error == gorm.ErrRecordNotFound {
 		return types.CourseNotBind
 	}
 	return types.OK

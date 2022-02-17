@@ -303,63 +303,65 @@ VALUES ('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022', 1);
 
 * create
 
-ParamInvalid
+  * OK:ok:
+  * ParamInvalid:ok:
 
-UnknownError
+  - UnknownError：课程重名:ok:
 
 * get
+  * OK:ok:
+  * ParamInvalid :ok:
+  * CourseNotExisted:ok:
 
-ParamInvalid
-CourseNotExisted
 
 * schedule
+  * OK:ok:
+  * ParamInvalid:ok:
 
-ParamInvalid
-
-UnknownError
 
 * bind
+  * OK:ok:
+  * ParamInvalid:ok:
+  * CourseHasBound:ok:
+  * CourseNotExisted:ok:
 
-ParamInvalid
-CourseHasBound
-PermDenied
-CourseNotExisted
 
 * unbind
 
-ParamInvalid
-CourseNotBound
-PermDenied
-CourseNotExisted
+  * OK:ok:
+
+  - ParamInvalid:ok:
+  - CourseNotBound:ok:
+  - CourseNotExisted:ok:
 
 * get
 
-ParamInvalid
-CourseNotBound
-CourseNotExisted
+  * OK:ok:
+
+  - ParamInvalid:ok:
 
 #### 选课模块
 
 * book_course
 
-ParamInvalid
+  - OK:ok:
+  - ParamInvalid:ok:
 
-CourseNotAvailable
+  - CourseNotAvailable:ok:
 
-StudentNotExisted
+  - StudentNotExisted:ok:
 
-CourseNotExisted
+  - CourseNotExisted:ok:
 
-StudentHasCourse
+  - StudentHasCourse:ok:
 
-RepeatRequest
-
-UnknownError
+  - RepeatRequest:ok:
 
 * get
 
-ParamInvalid
+  * OK:ok:
+  * ParamInvalid:ok:
 
-StudentNotExisted
+  - StudentNotExisted:ok:
 
-StudentHasNoCourse
+  - StudentHasNoCourse:ok:

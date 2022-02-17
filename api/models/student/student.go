@@ -36,6 +36,7 @@ type GetStudentCourseResponse struct {
 //检查课程学生合法性
 func (bookCourseInfo BookCourseRequest) CheckValid() (errno types.ErrNo) {
 	//课程不存在
+	log.Println(types.CoursePre + bookCourseInfo.CourseID)
 	value, _ := myredis.Exsits(types.CoursePre + bookCourseInfo.CourseID)
 	if value == false {
 		return types.CourseNotExisted
@@ -50,19 +51,19 @@ func (bookCourseInfo BookCourseRequest) CheckValid() (errno types.ErrNo) {
 
 //限制重复抢课和抢课频度
 func (bookCourseInfo BookCourseRequest) CheckRestriction(success, frequency string) (errno types.ErrNo) {
-	//限制重复抢课
-	cnt, _ := redis.Int(myredis.DecrForRedis(success))
-	//0-1=-1为初次抢课
-	if cnt < (-1) {
-		myredis.IncrForRedis(success)
-		return types.StudentHasCourse
-	}
 	//限制抢课频率
 	value, _ := myredis.Exsits(frequency)
 	if value == true {
 		return types.RepeatRequest
 	} else {
 		myredis.PutToRedis(frequency, "true", 3) //3秒内只能抢一次
+	}
+	//限制重复抢课
+	cnt, _ := redis.Int(myredis.DecrForRedis(success))
+	//0-1=-1为初次抢课
+	if cnt < (-1) {
+		myredis.IncrForRedis(success)
+		return types.StudentHasCourse
 	}
 	return types.OK
 }
@@ -93,7 +94,7 @@ func (bookCourseInfo BookCourseRequest) LockCourse(success string) (errno types.
 //检查课程学生合法性
 func (studentCourseInfo GetStudentCourseRequest) CheckStudent() (errno types.ErrNo) {
 	//学生不存在
-	value, _ := myredis.Exsits(types.SelectPre + studentCourseInfo.StudentID)
+	value, _ := myredis.Exsits(types.StudentPre + studentCourseInfo.StudentID)
 	if value == false {
 		return types.StudentNotExisted
 	}

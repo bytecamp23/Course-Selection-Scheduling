@@ -59,7 +59,9 @@ func QueryCourse(c *gin.Context) {
 		log.Println(respondData)
 		return
 	}
-
+	//限制频率
+	frequency := fmt.Sprintf("frequency_%s", requestData.StudentID)
+	respondData.Code = requestData.CheckRestriction(frequency)
 	//学生不存在
 	respondData.Code = requestData.CheckStudent()
 	if respondData.Code != types.OK {
@@ -68,9 +70,6 @@ func QueryCourse(c *gin.Context) {
 		log.Println(respondData)
 		return
 	}
-	//限制频率
-	frequency := fmt.Sprintf("frequency_%s", requestData.StudentID)
-	respondData.Code = requestData.CheckRestriction(frequency)
 	if respondData.Code != types.OK {
 		c.JSON(200, respondData)
 		log.Println(requestData)

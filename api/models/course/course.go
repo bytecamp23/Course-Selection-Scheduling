@@ -54,13 +54,14 @@ func (createCourseInfo CreateCourseRequest) CreateCourse() (CourseID string, err
 	db.Where("name = ?", createCourseInfo.Name).First(&course)
 	//检验课程是否已经存在
 	if course.Name == createCourseInfo.Name {
-		return "", types.PermDenied
+		return "", types.UnknownError
 	} else {
 		course = mydb.Course{
 			Name: createCourseInfo.Name,
 			Cap:  createCourseInfo.Cap,
 		}
 		_ = mydb.MysqlClient.Create(&course)
+		log.Println(types.CoursePre + course.CourseId)
 		myredis.PutToRedis(types.CoursePre+course.CourseId, course.Cap, -1)
 		myredis.PutToRedis(types.CourseNamePre+course.CourseId, course.Name, -1)
 		return course.CourseId, types.OK

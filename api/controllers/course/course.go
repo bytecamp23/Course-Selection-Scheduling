@@ -20,9 +20,7 @@ func ScheduleCourse(c *gin.Context) {
 		log.Println(requestData)
 		log.Println(respondData)
 	}
-	log.Println(requestData)
 	pointCnt := requestData.Discretize()
-	log.Println(pointCnt)
 	if pointCnt*len(requestData.TeacherCourseRelationShip) > types.ChooseFactor {
 		respondData.Data = requestData.Dinic()
 	} else {
