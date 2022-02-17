@@ -43,14 +43,11 @@
 ### 系统技术框架
 
 - 主体语言: Golang 
-
 - WEB框架: Gin
-
 - 持久层框架: Gorm、RediGo 
-
 - 关系型数据库: Mysql 
-
 - 缓存数据库: Redis
+- 消息队列：RabbitMQ
 
 ### 目录结构
 
@@ -82,7 +79,7 @@
 │       │   └── student.go
 │       └── teacher
 │           └── teacher.go
-├── config//存放配置文件
+├── config//存放配置文件，根据环境变量选择
 │   └── dev
 │       ├── log.yml
 │       ├── mysql.yml
@@ -226,62 +223,89 @@ VALUES ('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022', 1);
 
 具体而言当$N*M>1000000$我们采用Dinic算法，否则我们采用匈牙利算法。
 
-### 异常处理
+### 抢课模块实现
+
+#### 抢课
+
+核心流程：
+
+![2A1622099B733158E5B1885336852F83](/Users/lmessi/OneDrive/Project/Course-Selection-Scheduling/assets/2A1622099B733158E5B1885336852F83.jpg)
+
+判断非法课程号和学生号：在添加相应课程和学生时同步到redis中，直接在redis中查找判断。
+
+#### 查课表
+
+类似判断非法课程号和学生号，更新数据库时同步到redis中，直接从redis中获取数据。
+
+### 逻辑测试
 
 #### 用户模块
 
 * create
-
-ParamInvalid
-UserHasExisted
+  - OK:ok:
+  - ParamInvalid:ok:
+  - PermDenied:ok:
+  - UserHasDeleted:ok:
+  - UserHasExisted:ok:
 
 * get
 
-ParamInvalid
-UserHasDeleted
-UserNotExisted
+  - OK:ok:
+
+  - ParamInvalid:ok:
+  - UserHasDeleted:ok:
+  - UserNotExisted:ok:
 
 * list
 
-ParamInvalid
+  - OK:ok:
+
+  - ParamInvalid:ok:
 
 * update
 
-ParamInvalid
-UserHasDeleted
-UserNotExisted
+  * OK:ok:
+
+  - ParamInvalid:ok:
+  - UserHasDeleted:ok:
+  - UserNotExisted:ok:
 
 * delete
 
-ParamInvalid
-UserHasDeleted
-UserNotExisted
+  * OK:ok:
+
+  - ParamInvalid:ok:
+  - UserHasDeleted:ok:
+  - UserNotExisted:ok:
 
 #### 登陆模块
 
 * login
-
-ParamInvalid
-UserHasDeleted
-UserNotExisted
-WrongPassword
+  - OK:ok:
+  - ParamInvalid:ok:
+  - UserHasDeleted:ok:
+  - UserNotExisted:ok:
+  - WrongPassword:ok:
 
 * logout
 
-ParamInvalid
-LoginRequired
+  - OK:ok:
+
+  - LoginRequired:ok:
 
 * whoami
 
-ParamInvalid
-LoginRequired
+  - OK:ok:
+
+  * LoginRequired:ok:
 
 #### 排课模块
 
 * create
 
 ParamInvalid
-课程已存在？UnknownError
+
+UnknownError
 
 * get
 
@@ -339,16 +363,3 @@ ParamInvalid
 StudentNotExisted
 
 StudentHasNoCourse
-
-### 抢课模块实现
-
-#### 抢课
-
-核心流程：
-
-![2A1622099B733158E5B1885336852F83](/Users/lmessi/OneDrive/Project/Course-Selection-Scheduling/assets/2A1622099B733158E5B1885336852F83.jpg)
-
-判断非法课程号和学生号：redis辅助实现
-
-查课表：redis辅助实现
-

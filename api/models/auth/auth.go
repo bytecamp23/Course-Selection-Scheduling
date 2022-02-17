@@ -78,14 +78,11 @@ func (loginInfo LoginRequest) SetSession(c *gin.Context) (errno types.ErrNo) {
 
 //清除session
 func (logoutInfo LogoutRequest) ClearSession(c *gin.Context) (errno types.ErrNo) {
-	data, err := c.Cookie(types.CampSession)
-	if err != nil {
+	data, _ := c.Cookie(types.CampSession)
+	if val, _ := myredis.GetFromRedis(data); val == nil {
 		return types.LoginRequired
 	}
-	err = myredis.DeleteFromRedis(data)
-	if err != nil {
-		return types.LoginRequired
-	}
+	myredis.DeleteFromRedis(data)
 	c.SetCookie(types.CampSession, data, -1, "/", "localhost", false, true)
 	return types.OK
 }

@@ -22,8 +22,8 @@ func main() {
 	utils.LoadCfg(*env)
 	mydb.MysqlClient = mydb.NewMysqlConn(&utils.MysqlCfg)
 	myredis.RedisClient = myredis.NewRedisClient(&utils.RedisCfg)
-	//utils.ClearDB()
-	mydb.LoadDB()
+	mydb.ClearDB()
+	//mydb.LoadDB()
 	rabbitmq.RMQClient = rabbitmq.NewRabbitMQSimple(types.RMQName) //打开rmq消费者
 	go rabbitmq.RMQClient.ConsumeSimple(student.Consume)
 	server.Run()

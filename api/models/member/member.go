@@ -173,10 +173,12 @@ func (updateInfo UpdateMemberRequest) Update() (errno types.ErrNo) {
 func (deleteInfo DeleteMemberRequest) Delete() (errno types.ErrNo) {
 	var user mydb.User
 	db := mydb.MysqlClient
-	db.Where("user_id = ?", deleteInfo.UserID).First(&user)
+	db.Unscoped().Where("user_id = ?", deleteInfo.UserID).First(&user)
 	if user.UserId == deleteInfo.UserID {
-		if user.UserType == types.Student {
-			myredis.DeleteFromRedis("student_" + user.UserId)
+		if user.DeletedAt.Valid {
+			return types.UserHasDeleted
+		} else if user.UserType == types.Student {
+			myredis.DeleteFromRedis(types.StudentPre + user.UserId)
 		}
 		db.Delete(&user)
 		return types.OK
